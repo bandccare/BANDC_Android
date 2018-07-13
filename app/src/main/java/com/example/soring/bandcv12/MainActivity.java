@@ -16,6 +16,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
+import com.google.android.gms.fitness.FitnessOptions;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSource;
 import com.google.android.gms.fitness.data.DataType;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
+            Log.e( "GoogleFit", "Line 44" );
         }
 
         mApiClient = new GoogleApiClient.Builder(this)
@@ -50,6 +52,10 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 .addOnConnectionFailedListener(this)
                 .build();
 
+        FitnessOptions fitnessOptions = FitnessOptions.builder()
+                .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                .build();
     }
 
     @Override
@@ -143,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 .setDataType( dataType )
                 .setSamplingRate( 3, TimeUnit.SECONDS )
                 .build();
-
+        Log.e( "GoogleFit", "Line 149" );
         Fitness.SensorsApi.add( mApiClient, request, this )
                 .setResultCallback(new ResultCallback<Status>() {
                     @Override
@@ -167,7 +173,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 authInProgress = true;
                 connectionResult.startResolutionForResult( MainActivity.this, REQUEST_OAUTH );
             } catch(IntentSender.SendIntentException e ) {
-
             }
         } else {
             Log.e( "GoogleFit", "authInProgress" );
