@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private boolean authInProgress = false;
     private GoogleApiClient mApiClient;
     private String TAG = "MainActivty";
+    private boolean TEST = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
          * */
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Fitness.SENSORS_API)
+                //.addApi(Fitness.RECORDING_API)
                 // 사용자에게 이 App이 그들의 데이터에 엑세스 할 승인을 요청
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE)) // 피트니스 범위 설정(읽기, 쓰기)
                 .addConnectionCallbacks(this)
@@ -64,11 +66,19 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         /* onCreate 내부에서 걸음수를 조회하기 위해 필요한 피트니스 권한 객체 생성(구글 로그인시 옵션으로 요청하기 위해 생성)
          * TYPE_STEP_COUNT_DELTA: 단위시간별 걸음수
          * AGGREGATE_STEP_COUNT_DELTA: ★뭘까요?★ */
-        FitnessOptions fitnessOptions = FitnessOptions.builder()
-                .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-                //.addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-                // .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
-                .build();
+        FitnessOptions fitnessOptions;
+        if (TEST) {
+             fitnessOptions = FitnessOptions.builder()
+                    .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                    .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
+                    .build();
+        } else {
+             fitnessOptions = FitnessOptions.builder()
+                     .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
+                     .addDataType(DataType.AGGREGATE_HEART_RATE_SUMMARY, FitnessOptions.ACCESS_READ)
+                    .build();
+        }
+
         Log.e(TAG, "fitnessOptions 생성(72line)");
 
         /* 이 때 권한을 얻고나면 onActivityResult()가 콜백함수로 호출됨 */
@@ -150,15 +160,19 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     public void onConnected(@Nullable Bundle bundle) {
         Log.e(TAG, "onConnected() 내부(147line)");
 
-        DataSourcesRequest dataSourceRequest = new DataSourcesRequest.Builder()
-                .setDataTypes(DataType.TYPE_STEP_COUNT_DELTA)
-                .setDataSourceTypes(DataSource.TYPE_RAW)
-                .build();
-        /*DataSourcesRequest dataSourceRequest = new DataSourcesRequest.Builder()
-                .setDataTypes(DataType.TYPE_HEART_RATE_BPM)
-                .setDataSourceTypes(DataSource.TYPE_RAW)
-                .build();*/
+        DataSourcesRequest dataSourceRequest;
 
+        if (TEST) {
+            dataSourceRequest = new DataSourcesRequest.Builder()
+                    .setDataTypes(DataType.TYPE_STEP_COUNT_DELTA)
+                    .setDataSourceTypes(DataSource.TYPE_RAW)
+                    .build();
+        } else {
+            dataSourceRequest = new DataSourcesRequest.Builder()
+                    .setDataTypes(DataType.TYPE_HEART_RATE_BPM)
+                    .setDataSourceTypes(DataSource.TYPE_RAW)
+                    .build();
+        }
         Log.e(TAG, "dataSourceRequest 생성(158line)");
 
         ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
@@ -166,14 +180,17 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
             @Override
             public void onResult(DataSourcesResult dataSourcesResult) {
                 Log.e(TAG, "들어옴");
-                Log.e(TAG, "dataSourcesResult.getDataSources() size" + dataSourcesResult.getDataSources().size());
+                Log.e(TAG, "dataSourcesResult.getDataSources() size: " + dataSourcesResult.getDataSources().size());
 
                 for (DataSource dataSource : dataSourcesResult.getDataSources()) {
-
-                    if (DataType.TYPE_STEP_COUNT_DELTA.equals(dataSource.getDataType())) {
-                        registerFitnessDataListener(dataSource, DataType.TYPE_STEP_COUNT_DELTA);
-                    /*if (DataType.TYPE_HEART_RATE_BPM.equals(dataSource.getDataType())) {
-                        registerFitnessDataListener(dataSource, DataType.TYPE_HEART_RATE_BPM);*/
+                    if (TEST) {
+                        if (DataType.TYPE_STEP_COUNT_DELTA.equals(dataSource.getDataType())) {
+                            registerFitnessDataListener(dataSource, DataType.TYPE_STEP_COUNT_DELTA);
+                        }
+                    } else {
+                        if (DataType.TYPE_HEART_RATE_BPM.equals(dataSource.getDataType())) {
+                            registerFitnessDataListener(dataSource, DataType.TYPE_HEART_RATE_BPM);
+                        }
                     }
                     Log.e(TAG, "Data source found: " + dataSource.toString());
                     Log.e(TAG, "Data Source type: " + dataSource.getDataType().getName());
