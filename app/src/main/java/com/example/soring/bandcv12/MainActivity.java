@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /* 앱이 이미 피트니스 API에 대한 승인을 시도하고 있는지 확인 */
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
         }
@@ -53,12 +54,15 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
          * Session API: ??
          * Bluetooth low energy API: 안드로이드 디바이스와 블루투스로 연결될 수 있는 운동 보조 기구들을 위한 API
          * */
+
+        // ※STEP1. Google Api Client 초기화 -> onStart()
+
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Fitness.SENSORS_API)
                 //.addApi(Fitness.RECORDING_API)
                 // 사용자에게 이 App이 그들의 데이터에 엑세스 할 승인을 요청
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE)) // 피트니스 범위 설정(읽기, 쓰기)
-                .addConnectionCallbacks(this)
+                .addConnectionCallbacks(this) // callback 등록
                 .addOnConnectionFailedListener(this)
                 .build();
         Log.e(TAG, "mApiClient 생성(63line)");
@@ -68,14 +72,14 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
          * AGGREGATE_STEP_COUNT_DELTA: ★뭘까요?★ */
         FitnessOptions fitnessOptions;
         if (TEST) {
-             fitnessOptions = FitnessOptions.builder()
+            fitnessOptions = FitnessOptions.builder()
                     .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
                     .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
                     .build();
         } else {
-             fitnessOptions = FitnessOptions.builder()
-                     .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
-                     .addDataType(DataType.AGGREGATE_HEART_RATE_SUMMARY, FitnessOptions.ACCESS_READ)
+            fitnessOptions = FitnessOptions.builder()
+                    .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
+                    .addDataType(DataType.AGGREGATE_HEART_RATE_SUMMARY, FitnessOptions.ACCESS_READ)
                     .build();
         }
 
@@ -84,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         /* 이 때 권한을 얻고나면 onActivityResult()가 콜백함수로 호출됨 */
     }
 
+    // ※STEP2. Google Api Client 인스턴스를 Google 백엔드에 연결한다.
+    // 처음 시도시 사용자가 피트니스 데이터에 액세스하도록 앱을 인증해야하므로 연결이 실패한다 -> onConnectFailed()
     @Override
     protected void onStart() {
         super.onStart();
@@ -104,13 +110,15 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 });
     }
 
+    // ※STEP4. 권한 얻은 후 google api client 연결 시도 -> onConnected()
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.e(TAG, "onActivityResult() 내부(99line)");
         if (requestCode == REQUEST_OAUTH) {
             authInProgress = false;
-            /* 권한 얻기? 로그인? 성공 */
+            // 권한 얻기 성공
             if (resultCode == RESULT_OK) {
+                // Google API Client에 연결 시도
                 if (!mApiClient.isConnecting() && !mApiClient.isConnected()) {
                     mApiClient.connect();
                     Log.e("GoogleFit", "Request_OK");
@@ -154,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
     }
 
+    // ※STEP5.
     //사용자가 요청 된 데이터에 대한 액세스 권한을 부여한 후 앱의 목적에 맞게 원하는 GoogleApi클라이언트 (예 : HistoryClient역사적인 운동 데이터를 읽거나 쓸 수 있음)를 만듭니다 .
     // Google API Client가 접속했다는 콜백을 받으면 onconnect() 실행됨
     @Override
@@ -200,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         };
 
         //registerFitnessDataListener(dataSource, DataType.TYPE_HEART_RATE_BPM);
-
+        //생성 된 객체로 호출하여 유효한 step 데이터 소스를 검색한다.
         Fitness.SensorsApi.findDataSources(mApiClient, dataSourceRequest)
                 .setResultCallback(dataSourcesResultCallback);
     }
@@ -237,11 +246,14 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         Log.e("GoogleFit", "onConnectionSuspended");
     }
 
+    // ※STEP3.피트니스 데이터에 액세스하도록 앱을 인증 -> onActivityResult()
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        // 승인이 진행중인지 확인
         if (!authInProgress) {
             try {
                 authInProgress = true;
+                // startResolutionForResult: 사용권한을 부여받은 사용자를 적절하게 처리할 수 있도록 호출한다.
                 connectionResult.startResolutionForResult(MainActivity.this, REQUEST_OAUTH);
             } catch (IntentSender.SendIntentException e) {
             }
