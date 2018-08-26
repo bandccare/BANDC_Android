@@ -7,9 +7,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.soring.bandcv12.Model.Retrofit_BPM_Model;
+import com.example.soring.bandcv12.Util.RetrofitClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -30,6 +34,10 @@ import com.google.android.gms.fitness.result.DataSourcesResult;
 
 import java.util.concurrent.TimeUnit;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MainActivity extends AppCompatActivity implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final int REQUEST_OAUTH = 1;
     private static final String AUTH_PENDING = "auth_state_pending";
@@ -37,11 +45,33 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private GoogleApiClient mApiClient;
     private String TAG = "MainActivty";
     private boolean TEST = false;
+    private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        button = (Button)findViewById(R.id.button1);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Call<Retrofit_BPM_Model> rep = RetrofitClient.getInstance().getService().getdpmdata();
+                rep.enqueue(new Callback<Retrofit_BPM_Model>() {
+                    @Override
+                    public void onResponse(Call<Retrofit_BPM_Model> call, Response<Retrofit_BPM_Model> response) {
+                        for(int i=0; i < response.body().getPoint().size(); i++){
+                            Log.i("Response",""+response.body().getPoint().get(i).getFpValList().get(0).getFpVal());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Retrofit_BPM_Model> call, Throwable t) {
+                        Log.e("onFailure Called",""+t.toString());
+                    }
+                });
+            }
+        });
 
         /* 앱이 이미 피트니스 API에 대한 승인을 시도하고 있는지 확인 */
         if (savedInstanceState != null) {

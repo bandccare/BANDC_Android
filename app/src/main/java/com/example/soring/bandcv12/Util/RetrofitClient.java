@@ -11,7 +11,7 @@ public class RetrofitClient {
 
     private RetrofitClient(){};
 
-    Retrofit retrofit = new Retrofit.Builder().baseUrl("http://172.30.59.22:5000/").addConverterFactory(GsonConverterFactory.create()).build();
+    Retrofit retrofit = new Retrofit.Builder().baseUrl("http://172.30.1.14:5000/").addConverterFactory(GsonConverterFactory.create()).build();
 
     RetrofitService service = retrofit.create(RetrofitService.class);
 
