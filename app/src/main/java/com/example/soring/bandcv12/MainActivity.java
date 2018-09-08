@@ -5,6 +5,8 @@ import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.soring.bandcv12.Adapter.MainPagerAdapter;
 import com.example.soring.bandcv12.Model.Retrofit_BPM_Model;
 import com.example.soring.bandcv12.Util.RetrofitClient;
 import com.google.android.gms.common.ConnectionResult;
@@ -39,6 +42,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
+    public ViewPager m_ViewPager;
+    public MainPagerAdapter m_PagerAdapter;
+
+
+
     private static final int REQUEST_OAUTH = 1;
     private static final String AUTH_PENDING = "auth_state_pending";
     private boolean authInProgress = false;
@@ -47,11 +56,32 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private boolean TEST = false;
     private Button button;
 
+    private Button video_Button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        m_PagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
+        m_ViewPager = findViewById(R.id.viewpager);
+        m_ViewPager.setAdapter(m_PagerAdapter);
+        m_ViewPager.setOffscreenPageLimit(2);
+
+        TabLayout m_Tab = findViewById(R.id.tabs);
+        m_Tab.setupWithViewPager(m_ViewPager);
+
+        for(int i = 0 ; i < m_ViewPager.getAdapter().getCount() ; i++){
+            m_Tab.getTabAt(i).setIcon(m_PagerAdapter.getIcon(i));
+        }
+
+
+
+
+
+
+
+        // 여기서부터 밴드 코드
         button = (Button)findViewById(R.id.button1);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,6 +146,15 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         Log.e(TAG, "fitnessOptions 생성(72line)");
 
         /* 이 때 권한을 얻고나면 onActivityResult()가 콜백함수로 호출됨 */
+
+       /* video_Button = findViewById(R.id.video_btn);
+        video_Button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,VideoPlayerActivity.class);
+                startActivity(intent);
+            }
+        });*/
     }
 
     // ※STEP2. Google Api Client 인스턴스를 Google 백엔드에 연결한다.
