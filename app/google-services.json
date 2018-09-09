@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "1047825588884",
+    "firebase_url": "https://bandcv12.firebaseio.com",
+    "project_id": "bandcv12",
+    "storage_bucket": "bandcv12.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1047825588884:android:e7b5b1058e53f454",
+        "android_client_info": {
+          "package_name": "com.example.soring.bandcv12"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1047825588884-kogob93auoi9qcpj12s13rcd3h1op8nu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.soring.bandcv12",
+            "certificate_hash": "c5301594313dec69962ff86800ae9b3a3e1d3df9"
+          }
+        },
+        {
+          "client_id": "1047825588884-uhrufvuon9r9e9l7fspqvqfkumuohukk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.soring.bandcv12",
+            "certificate_hash": "96eed733f97234d482cd7bb229d5b1d21a43c68c"
+          }
+        },
+        {
+          "client_id": "1047825588884-9rr5hq23dija7uq8sdad7q23495jqsim.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQSiUeKuZDRfXDnbk0w9Woosa_xFvYZIw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1047825588884-i4pj5on6ob34gmbotg6pb93fo1or44ja.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

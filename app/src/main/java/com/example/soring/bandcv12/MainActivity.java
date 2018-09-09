@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private boolean TEST = false;
     private Button button;
 
-    private Button video_Button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,10 +73,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         for(int i = 0 ; i < m_ViewPager.getAdapter().getCount() ; i++){
             m_Tab.getTabAt(i).setIcon(m_PagerAdapter.getIcon(i));
         }
-
-
-
-
 
 
 
@@ -147,14 +142,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
         /* 이 때 권한을 얻고나면 onActivityResult()가 콜백함수로 호출됨 */
 
-       /* video_Button = findViewById(R.id.video_btn);
-        video_Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,VideoPlayerActivity.class);
-                startActivity(intent);
-            }
-        });*/
     }
 
     // ※STEP2. Google Api Client 인스턴스를 Google 백엔드에 연결한다.
