@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     public MainPagerAdapter m_PagerAdapter;
 
 
-
     private static final int REQUEST_OAUTH = 1;
     private static final String AUTH_PENDING = "auth_state_pending";
     private boolean authInProgress = false;
