@@ -28,7 +28,7 @@ public class RtspViewPlayer extends SurfaceView implements SurfaceHolder.Callbac
         new Thread(new Runnable() {
             @Override
             public void run() {
-               // NDKAdapter.play(mHolder.getSurface());
+                NDKAdapter.play(mHolder.getSurface());
             }
         }).start();
     }
