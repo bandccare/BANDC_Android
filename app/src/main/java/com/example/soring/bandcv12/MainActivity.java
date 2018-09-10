@@ -25,6 +25,7 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessOptions;
+import com.google.android.gms.fitness.GoalsApi;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSource;
 import com.google.android.gms.fitness.data.DataType;
@@ -45,8 +46,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
     public ViewPager m_ViewPager;
     public MainPagerAdapter m_PagerAdapter;
-
-
     private static final int REQUEST_OAUTH = 1;
     private static final String AUTH_PENDING = "auth_state_pending";
     private boolean authInProgress = false;
@@ -217,29 +216,29 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
     }
 
-    // ※STEP5.
-    //사용자가 요청 된 데이터에 대한 액세스 권한을 부여한 후 앱의 목적에 맞게 원하는 GoogleApi클라이언트 (예 : HistoryClient역사적인 운동 데이터를 읽거나 쓸 수 있음)를 만듭니다 .
-    // Google API Client가 접속했다는 콜백을 받으면 onconnect() 실행됨
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.e(TAG, "onConnected() 내부(147line)");
+        // ※STEP5.
+        //사용자가 요청 된 데이터에 대한 액세스 권한을 부여한 후 앱의 목적에 맞게 원하는 GoogleApi클라이언트 (예 : HistoryClient역사적인 운동 데이터를 읽거나 쓸 수 있음)를 만듭니다 .
+        // Google API Client가 접속했다는 콜백을 받으면 onconnect() 실행됨
+        @Override
+        public void onConnected(@Nullable Bundle bundle) {
+            Log.e(TAG, "onConnected() 내부(147line)");
 
-        DataSourcesRequest dataSourceRequest;
+            DataSourcesRequest dataSourceRequest;
 
-        if (TEST) {
-            dataSourceRequest = new DataSourcesRequest.Builder()
-                    .setDataTypes(DataType.TYPE_STEP_COUNT_DELTA)
-                    .setDataSourceTypes(DataSource.TYPE_RAW)
-                    .build();
-        } else {
-            dataSourceRequest = new DataSourcesRequest.Builder()
-                    .setDataTypes(DataType.TYPE_HEART_RATE_BPM)
-                    .setDataSourceTypes(DataSource.TYPE_RAW)
-                    .build();
-        }
-        Log.e(TAG, "dataSourceRequest 생성(158line)");
+            if (TEST) {
+                dataSourceRequest = new DataSourcesRequest.Builder()
+                        .setDataTypes(DataType.TYPE_STEP_COUNT_DELTA)
+                        .setDataSourceTypes(DataSource.TYPE_RAW)
+                        .build();
+            } else {
+                dataSourceRequest = new DataSourcesRequest.Builder()
+                        .setDataTypes(DataType.TYPE_HEART_RATE_BPM)
+                        .setDataSourceTypes(DataSource.TYPE_RAW)
+                        .build();
+            }
+            Log.e(TAG, "dataSourceRequest 생성(158line)");
 
-        ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
+            ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
 
             @Override
             public void onResult(DataSourcesResult dataSourcesResult) {
