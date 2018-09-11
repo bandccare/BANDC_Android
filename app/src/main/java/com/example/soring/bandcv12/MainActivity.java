@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.soring.bandcv12.Adapter.MainPagerAdapter;
-import com.example.soring.bandcv12.Model.Retrofit_BPM_Model;
+import com.example.soring.bandcv12.Model.Response_BPM;
 import com.example.soring.bandcv12.Service.GetService;
 import com.example.soring.bandcv12.Util.RetrofitClient;
 import com.google.android.gms.common.ConnectionResult;
@@ -26,7 +26,6 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessOptions;
-import com.google.android.gms.fitness.GoalsApi;
 import com.google.android.gms.fitness.data.DataPoint;
 import com.google.android.gms.fitness.data.DataSource;
 import com.google.android.gms.fitness.data.DataType;
@@ -36,6 +35,7 @@ import com.google.android.gms.fitness.request.DataSourcesRequest;
 import com.google.android.gms.fitness.request.OnDataPointListener;
 import com.google.android.gms.fitness.request.SensorRequest;
 import com.google.android.gms.fitness.result.DataSourcesResult;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.concurrent.TimeUnit;
 
@@ -62,6 +62,10 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        Log.e("FCM refreshedToken@@@",""+refreshedToken);
+
         m_PagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
         m_ViewPager = findViewById(R.id.viewpager);
         m_ViewPager.setAdapter(m_PagerAdapter);
@@ -82,17 +86,29 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Call<Retrofit_BPM_Model> rep = RetrofitClient.getInstance().getService().getdpmdata();
-                rep.enqueue(new Callback<Retrofit_BPM_Model>() {
+//                Call<Retrofit_BPM_Model> rep = RetrofitClient.getInstance().getService().getdpmdata();
+//                rep.enqueue(new Callback<Retrofit_BPM_Model>() {
+//                    @Override
+//                    public void onResponse(Call<Retrofit_BPM_Model> call, Response<Retrofit_BPM_Model> response) {
+//                        for(int i=0; i < response.body().getPoint().size(); i++){
+//                            Log.i("Response",""+response.body().getPoint().get(i).getFpValList().get(0).getFpVal());
+//                        }
+//                    }
+//                    @Override
+//                    public void onFailure(Call<Retrofit_BPM_Model> call, Throwable t) {
+//                        Log.e("onFailure Called",""+t.toString());
+//                    }
+//                });
+
+                Call<Response_BPM> response = RetrofitClient.getInstance().getService().GetBPM();
+                response.enqueue(new Callback<Response_BPM>() {
                     @Override
-                    public void onResponse(Call<Retrofit_BPM_Model> call, Response<Retrofit_BPM_Model> response) {
-                        for(int i=0; i < response.body().getPoint().size(); i++){
-                            Log.i("Response",""+response.body().getPoint().get(i).getFpValList().get(0).getFpVal());
-                        }
+                    public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
+                        Log.e("onResponse BPM Called",""+response.body().getBpm());
                     }
 
                     @Override
-                    public void onFailure(Call<Retrofit_BPM_Model> call, Throwable t) {
+                    public void onFailure(Call<Response_BPM> call, Throwable t) {
                         Log.e("onFailure Called",""+t.toString());
                     }
                 });
