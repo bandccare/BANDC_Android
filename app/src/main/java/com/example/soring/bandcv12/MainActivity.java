@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 response.enqueue(new Callback<Response_BPM>() {
                     @Override
                     public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
+
                         Log.e("onResponse BPM Called",""+response.body().getBpm());
                     }
 
@@ -362,6 +363,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 // startResolutionForResult: 사용권한을 부여받은 사용자를 적절하게 처리할 수 있도록 호출한다.
                 connectionResult.startResolutionForResult(MainActivity.this, REQUEST_OAUTH);
             } catch (IntentSender.SendIntentException e) {
+
             }
         } else {
             Log.e("GoogleFit", "authInProgress");
