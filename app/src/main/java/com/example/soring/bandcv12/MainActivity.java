@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.soring.bandcv12.Adapter.MainPagerAdapter;
 import com.example.soring.bandcv12.Model.Retrofit_BPM_Model;
+import com.example.soring.bandcv12.Service.GetService;
 import com.example.soring.bandcv12.Util.RetrofitClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private String TAG = "MainActivty";
     private boolean TEST = false;
     private Button button;
+    private Intent intent;
 
 
     @Override
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         for(int i = 0 ; i < m_ViewPager.getAdapter().getCount() ; i++){
             m_Tab.getTabAt(i).setIcon(m_PagerAdapter.getIcon(i));
         }
+
 
 
 
@@ -148,11 +151,14 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     protected void onStart() {
         super.onStart();
         mApiClient.connect();
+        intent = new Intent(getApplicationContext(), GetService.class);
+        startService(intent);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        stopService(intent);
         Fitness.SensorsApi.remove(mApiClient, this)
                 .setResultCallback(new ResultCallback<Status>() {
                     @Override

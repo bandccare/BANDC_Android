@@ -31,6 +31,8 @@
         </service>
 
         <activity android:name=".LoginActivity"></activity>
+
+        <service android:name=".Service.GetService"/>
     </application>
 
 </manifest>
