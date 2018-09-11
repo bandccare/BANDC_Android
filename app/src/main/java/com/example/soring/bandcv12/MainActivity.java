@@ -2,10 +2,13 @@ package com.example.soring.bandcv12;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -49,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
     public ViewPager m_ViewPager;
     public MainPagerAdapter m_PagerAdapter;
+
+
     private static final int REQUEST_OAUTH = 1;
     private static final String AUTH_PENDING = "auth_state_pending";
     private boolean authInProgress = false;
@@ -59,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private Intent intent;
 
 
+    private final int MY_PERMISSIONS_REQUEST_BODY_SENSORS =1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -160,11 +166,39 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
         // ※STEP1. Google Api Client 초기화 -> onStart()
 
+
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.BODY_SENSORS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    android.Manifest.permission.BODY_SENSORS)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.BODY_SENSORS},
+                        MY_PERMISSIONS_REQUEST_BODY_SENSORS);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Fitness.SENSORS_API)
                 //.addApi(Fitness.RECORDING_API)
                 // 사용자에게 이 App이 그들의 데이터에 엑세스 할 승인을 요청
-                .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE)) // 피트니스 범위 설정(읽기, 쓰기)
+                .addScope(new Scope(Scopes.FITNESS_BODY_READ_WRITE)) // 피트니스 범위 설정(읽기, 쓰기)
                 .addConnectionCallbacks(this) // callback 등록
                 .addOnConnectionFailedListener(this)
                 .build();
@@ -190,6 +224,31 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
         /* 이 때 권한을 얻고나면 onActivityResult()가 콜백함수로 호출됨 */
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_BODY_SENSORS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 
     // ※STEP2. Google Api Client 인스턴스를 Google 백엔드에 연결한다.
