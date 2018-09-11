@@ -1,6 +1,7 @@
 package com.example.soring.bandcv12.Util;
 
 import com.example.soring.bandcv12.Model.Request_FCM_Token;
+import com.example.soring.bandcv12.Model.Request_Motor;
 import com.example.soring.bandcv12.Model.Request_Oauth;
 import com.example.soring.bandcv12.Model.Response_BPM;
 import com.example.soring.bandcv12.Model.Response_Check;
@@ -28,5 +29,8 @@ public interface RetrofitService {
 
     @GET("gettoken")
     Call<Response_Check> Send_User_Id(@Query("user_id") String user_id);
+
+    @POST("/post")
+    Call<Request_Motor> Motor_Controller(@Body Request_Motor request_motor);
 
 }

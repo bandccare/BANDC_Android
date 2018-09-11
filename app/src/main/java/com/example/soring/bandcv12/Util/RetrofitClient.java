@@ -15,6 +15,10 @@ public class RetrofitClient {
 
     RetrofitService service = retrofit.create(RetrofitService.class);
 
+    Retrofit retrofit2 = new Retrofit.Builder().baseUrl("http://192.168.0.3:4000/").addConverterFactory(GsonConverterFactory.create()).build();
+
+    RetrofitService service2 = retrofit2.create(RetrofitService.class);
+
 
     Retrofit oauth_retrofit = new Retrofit.Builder().baseUrl("https://www.googleapis/oauth2/v4/").addConverterFactory(GsonConverterFactory.create()).build();
     RetrofitService oauth_service = oauth_retrofit.create(RetrofitService.class);
@@ -25,5 +29,9 @@ public class RetrofitClient {
 
     public RetrofitService getService(){
         return service;
+    }
+
+    public RetrofitService getService2() {
+        return service2;
     }
 }
