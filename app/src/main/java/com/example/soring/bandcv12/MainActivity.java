@@ -15,7 +15,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.soring.bandcv12.Adapter.MainPagerAdapter;
+import com.example.soring.bandcv12.Model.Request_FCM_Token;
 import com.example.soring.bandcv12.Model.Response_BPM;
+import com.example.soring.bandcv12.Model.Response_Check;
 import com.example.soring.bandcv12.Service.GetService;
 import com.example.soring.bandcv12.Util.RetrofitClient;
 import com.google.android.gms.common.ConnectionResult;
@@ -75,13 +77,41 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         m_Tab.setupWithViewPager(m_ViewPager);
 
         for(int i = 0 ; i < m_ViewPager.getAdapter().getCount() ; i++){
-            m_Tab.getTabAt(i).setIcon(m_PagerAdapter.getIcon(i));
+           m_Tab.getTabAt(i).setIcon(m_PagerAdapter.getIcon(i));
         }
+        Request_FCM_Token request_fcm_token = new Request_FCM_Token();
+        request_fcm_token.setUser_id("testid@gmail.com");
+        request_fcm_token.setUser_token(refreshedToken);
 
+        //로그인할때 FCM 토큰이랑 사용자 아이디 서버에 뿌리는 부분(DB 에 들어감)
+        Call<Response_Check> response = RetrofitClient.getInstance().getService().Send_FCM_Token(request_fcm_token);
+        response.enqueue(new Callback<Response_Check>() {
+            @Override
+            public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
+                Log.e("onResponse called","success");
+            }
 
+            @Override
+            public void onFailure(Call<Response_Check> call, Throwable t) {
+                Log.e("onFailure called",""+t.toString());
+            }
+        });
 
+        //로그인한 아이디에 대한 토큰값을 DB에서 가져오는 코드
+        Call<Response_Check> response_checkCall = RetrofitClient.getInstance().getService().Send_User_Id("testid@gmail.com");
+        response_checkCall.enqueue(new Callback<Response_Check>() {
+            @Override
+            public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
+                Log.e("onResponse Called2","succes");
+            }
 
-        // 여기서부터 밴드 코드
+            @Override
+            public void onFailure(Call<Response_Check> call, Throwable t) {
+                Log.e("onFailure called2",""+t.toString());
+            }
+        });
+
+        // 여기서부터 밴드 코드 + 난수 심박수 요청보내는 코드
         button = (Button)findViewById(R.id.button1);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
