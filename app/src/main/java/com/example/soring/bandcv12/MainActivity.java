@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import com.example.soring.bandcv12.Adapter.MainPagerAdapter;
 import com.example.soring.bandcv12.Model.Request_FCM_Token;
-import com.example.soring.bandcv12.Model.Response_BPM;
 import com.example.soring.bandcv12.Model.Response_Check;
 import com.example.soring.bandcv12.Service.GetService;
 import com.example.soring.bandcv12.Util.RetrofitClient;
@@ -99,50 +98,23 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
             }
         });
 
-        //로그인한 아이디에 대한 토큰값을 DB에서 가져오는 코드
-        Call<Response_Check> response_checkCall = RetrofitClient.getInstance().getService().Send_User_Id("testid@gmail.com");
-        response_checkCall.enqueue(new Callback<Response_Check>() {
-            @Override
-            public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
-                Log.e("onResponse Called2", "succes");
-            }
-
-            @Override
-            public void onFailure(Call<Response_Check> call, Throwable t) {
-                Log.e("onFailure called2", "" + t.toString());
-            }
-        });
 
         // 여기서부터 밴드 코드 + 난수 심박수 요청보내는 코드
-        button = (Button) findViewById(R.id.button1);
+        button = (Button)findViewById(R.id.button1);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Call<Retrofit_BPM_Model> rep = RetrofitClient.getInstance().getService().getdpmdata();
-//                rep.enqueue(new Callback<Retrofit_BPM_Model>() {
-//                    @Override
-//                    public void onResponse(Call<Retrofit_BPM_Model> call, Response<Retrofit_BPM_Model> response) {
-//                        for(int i=0; i < response.body().getPoint().size(); i++){
-//                            Log.i("Response",""+response.body().getPoint().get(i).getFpValList().get(0).getFpVal());
-//                        }
-//                    }
-//                    @Override
-//                    public void onFailure(Call<Retrofit_BPM_Model> call, Throwable t) {
-//                        Log.e("onFailure Called",""+t.toString());
-//                    }
-//                });
-
-                Call<Response_BPM> response = RetrofitClient.getInstance().getService().GetBPM();
-                response.enqueue(new Callback<Response_BPM>() {
+                //로그인한 아이디에 대한 토큰값을 DB에서 가져오는 코드
+                Call<Response_Check> response_checkCall = RetrofitClient.getInstance().getService().Send_User_Id("test");
+                response_checkCall.enqueue(new Callback<Response_Check>() {
                     @Override
-                    public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
-
-                        Log.e("onResponse BPM Called", "" + response.body().getBpm());
+                    public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
+                        Log.e("onResponse Called2","succes");
                     }
 
                     @Override
-                    public void onFailure(Call<Response_BPM> call, Throwable t) {
-                        Log.e("onFailure Called", "" + t.toString());
+                    public void onFailure(Call<Response_Check> call, Throwable t) {
+                        Log.e("onFailure called2",""+t.toString());
                     }
                 });
             }
@@ -160,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
          * Bluetooth low energy API: 안드로이드 디바이스와 블루투스로 연결될 수 있는 운동 보조 기구들을 위한 API
          * */
 
+        // ※STEP1. Google Api Client 초기화 -> onStart()
 
         /* PERMISSION CHECK */
         if (ContextCompat.checkSelfPermission(this,
@@ -188,7 +161,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
             }
         }
 
-        // ※STEP1. Google Api Client 초기화 -> onStart()
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Fitness.SENSORS_API)
                 //.addApi(Fitness.RECORDING_API)
@@ -212,7 +184,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
     }
 
-    /* PERMISSION CHECK */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -285,10 +256,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
             Log.e("GoogleFit", "requestCode NOT request_oauth");
         }
     }
-
-    /* DataSource: 센서로부터 들어오는 raw 값을 보여줌
-     * onDataPointListener: Data Source로 부터 실시간 데이터를 업데이트 하기 위해 사용
-     * DataPoint: 특정한 Data Source로 부터 하나의 데이터 포인트*/
 
     @Override
     public void onDataPoint(DataPoint dataPoint) {
@@ -393,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.e(LOG_TAG, "onConnectionSuspended");
+        Log.e("GoogleFit", "onConnectionSuspended");
     }
 
     // ※STEP3.피트니스 데이터에 액세스하도록 앱을 인증 -> onActivityResult()
@@ -409,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
             }
         } else {
-            Log.e(LOG_TAG, "authInProgress");
+            Log.e("GoogleFit", "authInProgress");
         }
     }
 }

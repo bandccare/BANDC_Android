@@ -63,7 +63,7 @@ public class VideoPlayerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 request_motor.setRsl("left");
-                Call<Request_Motor> response = RetrofitClient.getInstance().getService().Motor_Controller(request_motor);
+                Call<Request_Motor> response = RetrofitClient.getInstance().getService2().Motor_Controller(request_motor);
                 response.enqueue(new Callback<Request_Motor>() {
                     @Override
                     public void onResponse(Call<Request_Motor> call, Response<Request_Motor> response) {
@@ -82,7 +82,7 @@ public class VideoPlayerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 request_motor.setRsl("right");
-                Call<Request_Motor> response = RetrofitClient.getInstance().getService().Motor_Controller(request_motor);
+                Call<Request_Motor> response = RetrofitClient.getInstance().getService2().Motor_Controller(request_motor);
                 response.enqueue(new Callback<Request_Motor>() {
                     @Override
                     public void onResponse(Call<Request_Motor> call, Response<Request_Motor> response) {
@@ -102,7 +102,7 @@ public class VideoPlayerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 request_motor.setRsl("right_center");
-                Call<Request_Motor> response = RetrofitClient.getInstance().getService().Motor_Controller(request_motor);
+                Call<Request_Motor> response = RetrofitClient.getInstance().getService2().Motor_Controller(request_motor);
                 response.enqueue(new Callback<Request_Motor>() {
                     @Override
                     public void onResponse(Call<Request_Motor> call, Response<Request_Motor> response) {
@@ -122,7 +122,7 @@ public class VideoPlayerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 request_motor.setRsl("left_center");
-                Call<Request_Motor> response = RetrofitClient.getInstance().getService().Motor_Controller(request_motor);
+                Call<Request_Motor> response = RetrofitClient.getInstance().getService2().Motor_Controller(request_motor);
                 response.enqueue(new Callback<Request_Motor>() {
                     @Override
                     public void onResponse(Call<Request_Motor> call, Response<Request_Motor> response) {
@@ -142,7 +142,7 @@ public class VideoPlayerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 request_motor.setRsl("center");
-                Call<Request_Motor> response = RetrofitClient.getInstance().getService().Motor_Controller(request_motor);
+                Call<Request_Motor> response = RetrofitClient.getInstance().getService2().Motor_Controller(request_motor);
                 response.enqueue(new Callback<Request_Motor>() {
                     @Override
                     public void onResponse(Call<Request_Motor> call, Response<Request_Motor> response) {

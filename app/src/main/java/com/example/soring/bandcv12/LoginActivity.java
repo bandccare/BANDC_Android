@@ -1,18 +1,15 @@
 package com.example.soring.bandcv12;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.soring.bandcv12.Model.Request_Oauth;
-import com.example.soring.bandcv12.Model.Response_Oauth;
-import com.example.soring.bandcv12.Util.RetrofitClient;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -22,10 +19,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
     public static final String TAG = "ServerAuthCodeActivity";
@@ -112,7 +105,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             // Show signed-un UI
             updateUI(account);
-            request_Oauth();
 
             // TODO(developer): send code to server and exchange for access/refresh/ID tokens
         } catch (ApiException e) {
@@ -122,31 +114,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             // [END get_auth_code]
         }
     }
-
-    public void request_Oauth(){
-        Request_Oauth request_oauth = new Request_Oauth();
-        request_oauth.setGrant_type("authorization_code");
-        request_oauth.setClient_id("1047825588884-i4pj5on6ob34gmbotg6pb93fo1or44ja.apps.googleusercontent.com");
-        request_oauth.setClient_secret("tTo9LQ7b_n4XmkjoKm0wcmqI");
-        request_oauth.setCode(authCode);
-        //request_oauth.setScope("https://www.googleapis.com/auth/fitness.body.read");
-        request_oauth.setRedirect_uri("https://developers.google.com/oauthplayground");
-
-        Call<Response_Oauth> req = RetrofitClient.getInstance().getOauth_service().GetOauthToken(request_oauth);
-        req.enqueue(new Callback<Response_Oauth>() {
-            @Override
-            public void onResponse(Call<Response_Oauth> call, Response<Response_Oauth> response) {
-                Log.e("onResponse",""+response.body().getReferesh_token());
-                Log.e("onResponse",""+response.body().getAccess_token());
-            }
-
-            @Override
-            public void onFailure(Call<Response_Oauth> call, Throwable t) {
-                Log.e("onFailure",""+t.toString());
-            }
-        });
-    }
-
 
     private void updateUI(@Nullable GoogleSignInAccount account) {
         if (account != null) {
