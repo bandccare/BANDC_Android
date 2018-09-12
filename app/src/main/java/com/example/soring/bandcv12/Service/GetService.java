@@ -70,18 +70,4 @@ public class GetService  extends Service {
             return super.onStartCommand(intent, flags, startId);
     }
 
-/*    @Override
-    public void onDataPoint(DataPoint dataPoint) {
-        for (final Field field : dataPoint.getDataType().getFields()) {
-            final Value value = dataPoint.getValue(field);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e("asd", "onDataPoint 호출(125line)");
-                    Log.e("asd", "bpmValue:" + value);
-                 }
-            });
-        }
-
-    }*/
 }
