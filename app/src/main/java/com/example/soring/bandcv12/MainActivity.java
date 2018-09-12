@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
     private static final int REQUEST_OAUTH = 1;
     private static final String AUTH_PENDING = "auth_state_pending";
-    private final int MY_PERMISSIONS_REQUEST_BODY_SENSORS = 1;
     public ViewPager m_ViewPager;
     public MainPagerAdapter m_PagerAdapter;
     private boolean authInProgress = false;
@@ -69,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.e("FCM refreshedToken@@@", "" + refreshedToken);
@@ -125,46 +123,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
             }
         });
 
-        /* 앱이 이미 피트니스 API에 대한 승인을 시도하고 있는지 확인 */
-        if (savedInstanceState != null) {
-            authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
-        }
 
-        /* Sensor API: 센서를 주기적으로 관찰함으로써 실시간으로 원하는 데이터를 앱에 보여줌
-         * Recoding API: 데이터를 백그라운드에서 자동으로 저장
-         * History API: 저장된 데이터들을 원하는 형식에 따라 불러옴
-         * Session API: ??
-         * Bluetooth low energy API: 안드로이드 디바이스와 블루투스로 연결될 수 있는 운동 보조 기구들을 위한 API
-         * */
-
-        // ※STEP1. Google Api Client 초기화 -> onStart()
-
-        /* PERMISSION CHECK */
-        if (ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.BODY_SENSORS)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    android.Manifest.permission.BODY_SENSORS)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-
-                ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.BODY_SENSORS},
-                        MY_PERMISSIONS_REQUEST_BODY_SENSORS);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        }
 
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Fitness.SENSORS_API)
@@ -174,44 +133,20 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 .addConnectionCallbacks(this) // callback 등록
                 .addOnConnectionFailedListener(this)
                 .build();
-        Log.e(LOG_TAG, "mApiClient 생성(63line)");
+        Log.e(LOG_TAG, "mApiClient 생성");
 
         /* onCreate 내부에서 심박수를 조회하기 위해 필요한 피트니스 권한 객체 생성(구글 로그인시 옵션으로 요청하기 위해 생성) */
 
         FitnessOptions fitnessOptions = FitnessOptions.builder()
                 .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
-                .addDataType(DataType.AGGREGATE_HEART_RATE_SUMMARY, FitnessOptions.ACCESS_READ)
                 .build();
 
-        Log.e(LOG_TAG, "fitnessOptions 생성(72line)");
+        Log.e(LOG_TAG, "fitnessOptions 생성");
 
         /* 이 때 권한을 얻고나면 onActivityResult()가 콜백함수로 호출됨 */
 
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_BODY_SENSORS: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-    }
 
     // ※STEP2. Google Api Client 인스턴스를 Google 백엔드에 연결한다.
     // 처음 시도시 사용자가 피트니스 데이터에 액세스하도록 앱을 인증해야하므로 연결이 실패한다 -> onConnectFailed()
@@ -241,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     // ※STEP4. 권한 얻은 후 google api client 연결 시도 -> onConnected()
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.e(LOG_TAG, "onActivityResult() 내부(99line)");
+        Log.e(LOG_TAG, "onActivityResult() 내부");
         if (requestCode == REQUEST_OAUTH) {
             authInProgress = false;
             // 권한 얻기 성공
@@ -250,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 if (!mApiClient.isConnecting() && !mApiClient.isConnected()) {
                     mApiClient.connect();
                     Log.e("GoogleFit", "Request_OK");
-                    Log.e(LOG_TAG, "mApiClient.connect() 호출(107line)");
+                    Log.e(LOG_TAG, "mApiClient.connect() 호출");
 
                 }
             } else if (resultCode == RESULT_CANCELED) {
@@ -301,20 +236,19 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     // Google API Client가 접속했다는 콜백을 받으면 onconnect() 실행됨
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.e(LOG_TAG, "onConnected() 내부(147line)");
+        Log.e(LOG_TAG, "onConnected() 내부");
 
         DataSourcesRequest dataSourceRequest = new DataSourcesRequest.Builder()
                 .setDataTypes(DataType.TYPE_HEART_RATE_BPM)
                 .setDataSourceTypes(DataSource.TYPE_RAW)
                 .build();
 
-        Log.e(LOG_TAG, "dataSourceRequest 생성(158line)");
+        Log.e(LOG_TAG, "dataSourceRequest 생성");
 
         ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
 
             @Override
             public void onResult(DataSourcesResult dataSourcesResult) {
-                Log.e(LOG_TAG, "들어옴");
                 Log.e(LOG_TAG, "dataSourcesResult.getDataSources() size: " + dataSourcesResult.getDataSources().size());
 
                 for (DataSource dataSource : dataSourcesResult.getDataSources()) {
@@ -336,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     }
 
     private void registerFitnessDataListener(DataSource dataSource, DataType dataType) {
-        Log.e(LOG_TAG, "registerFitnessDataListener 내부(178line)");
+        Log.e(LOG_TAG, "registerFitnessDataListener 내부");
 
         //데이터의 변화를 추적하는 요청 생성
         SensorRequest request = new SensorRequest.Builder()
@@ -344,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 .setDataType(dataType) // 사용할 데이터 유형
                 .setSamplingRate(3, TimeUnit.SECONDS) // 3초마다 샘플링
                 .build();
-        Log.e(LOG_TAG, "request 생성(185line)");
+        Log.e(LOG_TAG, "request 생성");
 
         // 주기적으로 관찰할 리스너 등록(클라이언트와 요청을 넣음)
         Fitness.SensorsApi.add(mApiClient, request, this)
@@ -353,8 +287,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                     public void onResult(Status status) {
 
                         if (status.isSuccess()) {
-                            Log.e(LOG_TAG, "SensorApi successfully added");
-                            Log.e(LOG_TAG, "주기적으로 관찰할 SensorAPI 생성(195line)");
+                            Log.e(LOG_TAG, "주기적으로 관찰할 SensorAPI 생성");
 
                         }
                     }
