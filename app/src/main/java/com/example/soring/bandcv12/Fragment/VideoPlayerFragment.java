@@ -51,9 +51,9 @@ public class VideoPlayerFragment extends Fragment {
 
 
         //NDK
-        playView = new RtspViewPlayer(getContext(),"rtsp://192.168.0.2:8091/rtsp");
+       /* playView = new RtspViewPlayer(getContext(),"rtsp://192.168.0.2:8091/rtsp");
         surfaceView = view.findViewById(R.id.surface_video);
-        surfaceView.addView(playView);
+        surfaceView.addView(playView);*/
 
         final Request_Motor request_motor = new Request_Motor();
 

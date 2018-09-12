@@ -8,7 +8,7 @@ public class BPM_value {
     @SerializedName("value")
     private ArrayList<BPM_fpVal> fpValList;
 
-    public BPM_value(){};
+    public BPM_value(){}
 
     public BPM_value(ArrayList<BPM_fpVal> fpValList) {
         this.fpValList = fpValList;

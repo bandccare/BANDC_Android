@@ -2,6 +2,7 @@ package com.example.soring.bandcv12;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -59,6 +60,10 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private String LOG_TAG = "BANDC_LOG";
     private Button button;
     private Intent intent;
+
+    //SharedPreferences
+    //private Button user_btn;
+    SharedPreferences user_info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,7 +202,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                     // contacts-related task you need to do.
 
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                 }
@@ -378,5 +382,19 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         } else {
             Log.e("GoogleFit", "authInProgress");
         }
+    }
+
+    private void getUserPreferences() {
+        user_info = getSharedPreferences("user_info", MODE_PRIVATE);
+
+        Log.e("spinner", user_info.getString("gender", "") + " "
+                + user_info.getString("year", "") + " "
+                + user_info.getString("month", "") + " "
+                + user_info.getString("day", ""));
+
+        Toast.makeText(this, user_info.getString("gender", "") + " "
+                + user_info.getString("year", "") + " "
+                + user_info.getString("month", "") + " "
+                + user_info.getString("day", ""), Toast.LENGTH_SHORT).show();
     }
 }

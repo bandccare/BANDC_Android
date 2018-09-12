@@ -22,6 +22,15 @@ android {
         jni.srcDirs = []
         jniLibs.srcDirs "src/main/libs"
     }
+
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'x86', 'armeabi-v7a'
+            universalApk true
+        }
+    }
 }
 
 dependencies {
@@ -45,7 +54,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
 
-    implementation files('libs/jsoup-1.11.3.jar')
+
 }
 
 apply plugin: 'com.google.gms.google-services'

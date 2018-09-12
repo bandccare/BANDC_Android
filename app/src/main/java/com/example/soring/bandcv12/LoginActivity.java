@@ -1,15 +1,27 @@
 package com.example.soring.bandcv12;
 
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.soring.bandcv12.Model.Request_Oauth;
+import com.example.soring.bandcv12.Model.Response_Oauth;
+import com.example.soring.bandcv12.Util.RetrofitClient;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -20,147 +32,98 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
-    public static final String TAG = "ServerAuthCodeActivity";
-    private static final int RC_GET_AUTH_CODE = 9003;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-    private GoogleSignInClient mGoogleSignInClient;
-    private TextView mAuthCodeTextView;
-    private String authCode;
+public class LoginActivity extends AppCompatActivity {
+
+    RadioGroup rg;
+    RadioButton rb;
+    EditText yearEdit;
+    Spinner monthSpinner;
+    Spinner daySpinner;
+    Button loginButton;
+
+    int id;
+    String gender, year, month, day;
+
+    SharedPreferences user_info;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Views
-        mAuthCodeTextView = findViewById(R.id.detail);
+        rg = findViewById(R.id.radio_group);
 
-        // Button click listeners
-        findViewById(R.id.sign_in_button).setOnClickListener(this);
-        findViewById(R.id.sign_out_button).setOnClickListener(this);
-        findViewById(R.id.disconnect_button).setOnClickListener(this);
+        yearEdit = findViewById(R.id.edit_year);
 
-        // For sample only: make sure there is a valid server client ID.
-        validateServerClientID();
+        monthSpinner = (Spinner) findViewById(R.id.spinner_month);
+        ArrayAdapter monthAdapter = ArrayAdapter.createFromResource(this, R.array.date_month, android.R.layout.simple_spinner_dropdown_item);
+        monthSpinner.setAdapter(monthAdapter);
 
-        // [START configure_signin]
-        // Configure sign-in to request offline access to the user's ID, basic
-        // profile, and Google Drive. The first time you request a code you will
-        // be able to exchange it for an access token and refresh token, which
-        // you should store. In subsequent calls, the code will only result in
-        // an access token. By asking for profile access (through
-        // DEFAULT_SIGN_IN) you will also get an ID Token as a result of the
-        // code exchange.
-        String serverClientId = getString(R.string.server_client_id);
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestScopes(new Scope(Scopes.DRIVE_APPFOLDER))
-                .requestServerAuthCode(serverClientId)
-                .requestEmail()
-                .build();
-        // [END configure_signin]
+        daySpinner = (Spinner) findViewById(R.id.spinner_day);
+        ArrayAdapter dayAdapter = ArrayAdapter.createFromResource(this, R.array.date_day, android.R.layout.simple_spinner_dropdown_item);
+        daySpinner.setAdapter(dayAdapter);
 
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-    }
-
-    private void getAuthCode() {
-        // Start the retrieval process for a server auth code.  If requested, ask for a refresh
-        // token.  Otherwise, only get an access token if a refresh token has been previously
-        // retrieved.  Getting a new access token for an existing grant does not require
-        // user consent.
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_GET_AUTH_CODE);
-    }
-
-    private void signOut() {
-        mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
+        loginButton = findViewById(R.id.login_submit_btn);
+        loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                updateUI(null);
+            public void onClick(View v) {
+                id = rg.getCheckedRadioButtonId();
+                rb = findViewById(id);
+
+                gender = rb.getText().toString();
+                year = yearEdit.getText().toString();
+                month = monthSpinner.getSelectedItem().toString();
+                day = daySpinner.getSelectedItem().toString();
+                if (year.equals("")) {
+                    Toast.makeText(getApplicationContext(), "나이를 입력하세요", Toast.LENGTH_SHORT).show();
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                    builder.setTitle("정보확인");
+                    builder.setMessage("다음으로 넘어가시겟습니까?");
+                    builder.setPositiveButton("예",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    saveUserPreferences(gender, year, month, day);
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                }
+                            }).setNegativeButton("아니오",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                   dialog.cancel();
+                                }
+                            });
+                    builder.show();
+                }
             }
         });
+
     }
 
-    private void revokeAccess() {
-        mGoogleSignInClient.revokeAccess().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        updateUI(null);
-                    }
-                });
+    private void saveUserPreferences(String gender, String year, String month, String day) {
+        user_info = getSharedPreferences("user_info", MODE_PRIVATE);
+        SharedPreferences.Editor editor = user_info.edit();
+        editor.putString("gender", gender);
+        editor.putString("year", year);
+        editor.putString("month", month);
+        editor.putString("day", day);
+        Log.e("spinner", gender + " " + year + " " + month + " " + day);
+        editor.commit();
     }
 
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_GET_AUTH_CODE) {
-            // [START get_auth_code]
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-            authCode = account.getServerAuthCode();
-
-            // Show signed-un UI
-            updateUI(account);
-
-            // TODO(developer): send code to server and exchange for access/refresh/ID tokens
-        } catch (ApiException e) {
-            Log.w(TAG, "Sign-in failed", e);
-            updateUI(null);
-        }
-            // [END get_auth_code]
-        }
-    }
-
-    private void updateUI(@Nullable GoogleSignInAccount account) {
-        if (account != null) {
-            ((TextView) findViewById(R.id.status)).setText(R.string.signed_in);
-
-            findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
-
-            String authCode = account.getServerAuthCode();
-            Log.e("authcode",""+account.getServerAuthCode());
-            mAuthCodeTextView.setText(getString(R.string.auth_code_fmt, authCode));
-        } else {
-            ((TextView) findViewById(R.id.status)).setText(R.string.signed_out);
-            mAuthCodeTextView.setText(getString(R.string.auth_code_fmt, "null"));
-
-            findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * Validates that there is a reasonable server client ID in strings.xml, this is only needed
-     * to make sure users of this sample follow the README.
-     */
-    private void validateServerClientID() {
-        String serverClientId = getString(R.string.server_client_id);
-        String suffix = ".apps.googleusercontent.com";
-        if (!serverClientId.trim().endsWith(suffix)) {
-            String message = "Invalid server client ID in strings.xml, must end with " + suffix;
-
-            Log.w(TAG, message);
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.sign_in_button:
-                getAuthCode();
-                break;
-            case R.id.sign_out_button:
-                signOut();
-                break;
-            case R.id.disconnect_button:
-                revokeAccess();
-                break;
-        }
+    private void removeAllPreferences() {
+        user_info = getSharedPreferences("user_info", MODE_PRIVATE);
+        SharedPreferences.Editor editor = user_info.edit();
+        editor.clear();
+        editor.commit();
     }
 }

@@ -20,7 +20,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class GetService  extends Service {
+public class GetService extends Service {
 
     private boolean falg = false;
     DataPoint dataPoint;
@@ -30,24 +30,27 @@ public class GetService  extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
     @Override
     public void onCreate() {
-        Log.e("asdasd","서비스 시작!");
+        Log.e("asdasd", "서비스 시작!");
         super.onCreate();
     }
-        @Override
-        public void onDestroy() {
+
+    @Override
+    public void onDestroy() {
         this.falg = true;
         super.onDestroy();
-        }
-        @Override
-        public int onStartCommand(Intent intent, int flags, int startId) {
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while(!falg){
-                    try{
-                      /*  Call<Response_BPM> response = RetrofitClient.getInstance().getService().GetBPM();
+                while (!falg) {
+                     /*try{
+                       Call<Response_BPM> response = RetrofitClient.getInstance().getService().GetBPM();
                         response.enqueue(new Callback<Response_BPM>() {
                             @Override
                             public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
@@ -58,16 +61,16 @@ public class GetService  extends Service {
                                 Log.e("onFailure Called",""+t.toString());
                             }
                         });
-*/
+
                         Thread.sleep(5000);
                     }catch(Exception e){
                         e.printStackTrace();
-                    }
+                    }*/
                 }
             }
         }).start();
-        Log.e("asdasd","들어와");
-            return super.onStartCommand(intent, flags, startId);
+        Log.e("asdasd", "들어오ㅑ");
+        return super.onStartCommand(intent, flags, startId);
     }
 
 }
