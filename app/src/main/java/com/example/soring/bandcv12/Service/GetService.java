@@ -47,7 +47,7 @@ public class GetService  extends Service {
             public void run() {
                 while(!falg){
                     try{
-                        Call<Response_BPM> response = RetrofitClient.getInstance().getService().GetBPM();
+                      /*  Call<Response_BPM> response = RetrofitClient.getInstance().getService().GetBPM();
                         response.enqueue(new Callback<Response_BPM>() {
                             @Override
                             public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
@@ -58,7 +58,7 @@ public class GetService  extends Service {
                                 Log.e("onFailure Called",""+t.toString());
                             }
                         });
-
+*/
                         Thread.sleep(5000);
                     }catch(Exception e){
                         e.printStackTrace();
@@ -66,7 +66,7 @@ public class GetService  extends Service {
                 }
             }
         }).start();
-        Log.e("asdasd","들어오ㅑ");
+        Log.e("asdasd","들어와");
             return super.onStartCommand(intent, flags, startId);
     }
 

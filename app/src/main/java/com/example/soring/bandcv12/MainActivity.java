@@ -48,23 +48,19 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-    public class MainActivity extends AppCompatActivity implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-        public ViewPager m_ViewPager;
-        public MainPagerAdapter m_PagerAdapter;
+    private static final int REQUEST_OAUTH = 1;
+    private static final String AUTH_PENDING = "auth_state_pending";
+    private final int MY_PERMISSIONS_REQUEST_BODY_SENSORS = 1;
+    public ViewPager m_ViewPager;
+    public MainPagerAdapter m_PagerAdapter;
+    private boolean authInProgress = false;
+    private GoogleApiClient mApiClient;
+    private String LOG_TAG = "BANDC_LOG";
+    private Button button;
+    private Intent intent;
 
-
-        private static final int REQUEST_OAUTH = 1;
-        private static final String AUTH_PENDING = "auth_state_pending";
-        private boolean authInProgress = false;
-        private GoogleApiClient mApiClient;
-        private String TAG = "MainActivty";
-        private boolean TEST = false;
-        private Button button;
-        private Intent intent;
-
-
-    private final int MY_PERMISSIONS_REQUEST_BODY_SENSORS =1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +68,7 @@ import retrofit2.Response;
 
 
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-        Log.e("FCM refreshedToken@@@",""+refreshedToken);
+        Log.e("FCM refreshedToken@@@", "" + refreshedToken);
 
         m_PagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
         m_ViewPager = findViewById(R.id.viewpager);
@@ -82,24 +78,24 @@ import retrofit2.Response;
         TabLayout m_Tab = findViewById(R.id.tabs);
         m_Tab.setupWithViewPager(m_ViewPager);
 
-        for(int i = 0 ; i < m_ViewPager.getAdapter().getCount() ; i++){
-           m_Tab.getTabAt(i).setIcon(m_PagerAdapter.getIcon(i));
+        for (int i = 0; i < m_ViewPager.getAdapter().getCount(); i++) {
+            m_Tab.getTabAt(i).setIcon(m_PagerAdapter.getIcon(i));
         }
         Request_FCM_Token request_fcm_token = new Request_FCM_Token();
         request_fcm_token.setUser_id("testid@gmail.com");
         request_fcm_token.setUser_token(refreshedToken);
 
-        //로그인할때 FCM 토큰이랑 사용자 아이디 서버에 뿌리는 부분(DB 에 들어감)
+        //로그인할때 FCM 토큰이랑 사용자 아이디 서버에 뿌리는 부분(DB에 들어감)
         Call<Response_Check> response = RetrofitClient.getInstance().getService().Send_FCM_Token(request_fcm_token);
         response.enqueue(new Callback<Response_Check>() {
             @Override
             public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
-                Log.e("onResponse called","success");
+                Log.e("onResponse called", "success");
             }
 
             @Override
             public void onFailure(Call<Response_Check> call, Throwable t) {
-                Log.e("onFailure called",""+t.toString());
+                Log.e("onFailure called", "" + t.toString());
             }
         });
 
@@ -108,17 +104,17 @@ import retrofit2.Response;
         response_checkCall.enqueue(new Callback<Response_Check>() {
             @Override
             public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
-                Log.e("onResponse Called2","succes");
+                Log.e("onResponse Called2", "succes");
             }
 
             @Override
             public void onFailure(Call<Response_Check> call, Throwable t) {
-                Log.e("onFailure called2",""+t.toString());
+                Log.e("onFailure called2", "" + t.toString());
             }
         });
 
         // 여기서부터 밴드 코드 + 난수 심박수 요청보내는 코드
-        button = (Button)findViewById(R.id.button1);
+        button = (Button) findViewById(R.id.button1);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,12 +137,12 @@ import retrofit2.Response;
                     @Override
                     public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
 
-                        Log.e("onResponse BPM Called",""+response.body().getBpm());
+                        Log.e("onResponse BPM Called", "" + response.body().getBpm());
                     }
 
                     @Override
                     public void onFailure(Call<Response_BPM> call, Throwable t) {
-                        Log.e("onFailure Called",""+t.toString());
+                        Log.e("onFailure Called", "" + t.toString());
                     }
                 });
             }
@@ -164,10 +160,8 @@ import retrofit2.Response;
          * Bluetooth low energy API: 안드로이드 디바이스와 블루투스로 연결될 수 있는 운동 보조 기구들을 위한 API
          * */
 
-        // ※STEP1. Google Api Client 초기화 -> onStart()
 
-
-        // Here, thisActivity is the current activity
+        /* PERMISSION CHECK */
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.BODY_SENSORS)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -194,6 +188,7 @@ import retrofit2.Response;
             }
         }
 
+        // ※STEP1. Google Api Client 초기화 -> onStart()
         mApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Fitness.SENSORS_API)
                 //.addApi(Fitness.RECORDING_API)
@@ -202,30 +197,22 @@ import retrofit2.Response;
                 .addConnectionCallbacks(this) // callback 등록
                 .addOnConnectionFailedListener(this)
                 .build();
-        Log.e(TAG, "mApiClient 생성(63line)");
+        Log.e(LOG_TAG, "mApiClient 생성(63line)");
 
-        /* onCreate 내부에서 걸음수를 조회하기 위해 필요한 피트니스 권한 객체 생성(구글 로그인시 옵션으로 요청하기 위해 생성)
-         * TYPE_STEP_COUNT_DELTA: 단위시간별 걸음수
-         * AGGREGATE_STEP_COUNT_DELTA: ★뭘까요?★ */
-        FitnessOptions fitnessOptions;
-        if (TEST) {
-            fitnessOptions = FitnessOptions.builder()
-                    .addDataType(DataType.TYPE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-                    .addDataType(DataType.AGGREGATE_STEP_COUNT_DELTA, FitnessOptions.ACCESS_READ)
-                    .build();
-        } else {
-            fitnessOptions = FitnessOptions.builder()
-                    .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
-                    .addDataType(DataType.AGGREGATE_HEART_RATE_SUMMARY, FitnessOptions.ACCESS_READ)
-                    .build();
-        }
+        /* onCreate 내부에서 심박수를 조회하기 위해 필요한 피트니스 권한 객체 생성(구글 로그인시 옵션으로 요청하기 위해 생성) */
 
-        Log.e(TAG, "fitnessOptions 생성(72line)");
+        FitnessOptions fitnessOptions = FitnessOptions.builder()
+                .addDataType(DataType.TYPE_HEART_RATE_BPM, FitnessOptions.ACCESS_READ)
+                .addDataType(DataType.AGGREGATE_HEART_RATE_SUMMARY, FitnessOptions.ACCESS_READ)
+                .build();
+
+        Log.e(LOG_TAG, "fitnessOptions 생성(72line)");
 
         /* 이 때 권한을 얻고나면 onActivityResult()가 콜백함수로 호출됨 */
 
     }
 
+    /* PERMISSION CHECK */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -279,7 +266,7 @@ import retrofit2.Response;
     // ※STEP4. 권한 얻은 후 google api client 연결 시도 -> onConnected()
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.e(TAG, "onActivityResult() 내부(99line)");
+        Log.e(LOG_TAG, "onActivityResult() 내부(99line)");
         if (requestCode == REQUEST_OAUTH) {
             authInProgress = false;
             // 권한 얻기 성공
@@ -288,7 +275,7 @@ import retrofit2.Response;
                 if (!mApiClient.isConnecting() && !mApiClient.isConnected()) {
                     mApiClient.connect();
                     Log.e("GoogleFit", "Request_OK");
-                    Log.e(TAG, "mApiClient.connect() 호출(107line)");
+                    Log.e(LOG_TAG, "mApiClient.connect() 호출(107line)");
 
                 }
             } else if (resultCode == RESULT_CANCELED) {
@@ -299,20 +286,31 @@ import retrofit2.Response;
         }
     }
 
+    /* DataSource: 센서로부터 들어오는 raw 값을 보여줌
+     * onDataPointListener: Data Source로 부터 실시간 데이터를 업데이트 하기 위해 사용
+     * DataPoint: 특정한 Data Source로 부터 하나의 데이터 포인트*/
+
     @Override
     public void onDataPoint(DataPoint dataPoint) {
         for (final Field field : dataPoint.getDataType().getFields()) {
-            final Value value = dataPoint.getValue(field);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e(TAG, "onDataPoint 호출(125line)");
-                    Log.e(TAG, "bpmValue:" + value);
-                    TextView bpmValue = (TextView) findViewById(R.id.bpmValue);
-                    bpmValue.setText(value.toString());
-                    Toast.makeText(getApplicationContext(), "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
+            if (!dataPoint.getValue(field).toString().equals("-3.0")) {
+                final Value value = dataPoint.getValue(field);
+                String value_sub_string = value.toString().substring(value.toString().lastIndexOf(".") + 1);
+                if (value_sub_string.length() < 2) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.e(LOG_TAG, "onDataPoint 호출(125line)");
+                            Log.e(LOG_TAG, "bpmValue:" + value);
+                            TextView bpmValue = (TextView) findViewById(R.id.bpmValue);
+                            bpmValue.setText(value.toString());
+                            Toast.makeText(getApplicationContext(), "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    Log.e(LOG_TAG, "이상한 수 들어옴:" + value);
                 }
-            });
+            }
         }
     }
 
@@ -327,47 +325,34 @@ import retrofit2.Response;
 
     }
 
-        // ※STEP5.
-        //사용자가 요청 된 데이터에 대한 액세스 권한을 부여한 후 앱의 목적에 맞게 원하는 GoogleApi클라이언트 (예 : HistoryClient역사적인 운동 데이터를 읽거나 쓸 수 있음)를 만듭니다 .
-        // Google API Client가 접속했다는 콜백을 받으면 onconnect() 실행됨
-        @Override
-        public void onConnected(@Nullable Bundle bundle) {
-            Log.e(TAG, "onConnected() 내부(147line)");
+    // ※STEP5.
+    //사용자가 요청 된 데이터에 대한 액세스 권한을 부여한 후 앱의 목적에 맞게 원하는 GoogleApi클라이언트 (예 : HistoryClient역사적인 운동 데이터를 읽거나 쓸 수 있음)를 만듭니다 .
+    // Google API Client가 접속했다는 콜백을 받으면 onconnect() 실행됨
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.e(LOG_TAG, "onConnected() 내부(147line)");
 
-            DataSourcesRequest dataSourceRequest;
+        DataSourcesRequest dataSourceRequest = new DataSourcesRequest.Builder()
+                .setDataTypes(DataType.TYPE_HEART_RATE_BPM)
+                .setDataSourceTypes(DataSource.TYPE_RAW)
+                .build();
 
-            if (TEST) {
-                dataSourceRequest = new DataSourcesRequest.Builder()
-                        .setDataTypes(DataType.TYPE_STEP_COUNT_DELTA)
-                        .setDataSourceTypes(DataSource.TYPE_RAW)
-                        .build();
-            } else {
-                dataSourceRequest = new DataSourcesRequest.Builder()
-                        .setDataTypes(DataType.TYPE_HEART_RATE_BPM)
-                        .setDataSourceTypes(DataSource.TYPE_RAW)
-                        .build();
-            }
-            Log.e(TAG, "dataSourceRequest 생성(158line)");
+        Log.e(LOG_TAG, "dataSourceRequest 생성(158line)");
 
-            ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
+        ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
 
             @Override
             public void onResult(DataSourcesResult dataSourcesResult) {
-                Log.e(TAG, "들어옴");
-                Log.e(TAG, "dataSourcesResult.getDataSources() size: " + dataSourcesResult.getDataSources().size());
+                Log.e(LOG_TAG, "들어옴");
+                Log.e(LOG_TAG, "dataSourcesResult.getDataSources() size: " + dataSourcesResult.getDataSources().size());
 
                 for (DataSource dataSource : dataSourcesResult.getDataSources()) {
-                    if (TEST) {
-                        if (DataType.TYPE_STEP_COUNT_DELTA.equals(dataSource.getDataType())) {
-                            registerFitnessDataListener(dataSource, DataType.TYPE_STEP_COUNT_DELTA);
-                        }
-                    } else {
-                        if (DataType.TYPE_HEART_RATE_BPM.equals(dataSource.getDataType())) {
-                            registerFitnessDataListener(dataSource, DataType.TYPE_HEART_RATE_BPM);
-                        }
+
+                    if (DataType.TYPE_HEART_RATE_BPM.equals(dataSource.getDataType())) {
+                        registerFitnessDataListener(dataSource, DataType.TYPE_HEART_RATE_BPM);
                     }
-                    Log.e(TAG, "Data source found: " + dataSource.toString());
-                    Log.e(TAG, "Data Source type: " + dataSource.getDataType().getName());
+                    Log.e(LOG_TAG, "Data source found: " + dataSource.toString());
+                    Log.e(LOG_TAG, "Data Source type: " + dataSource.getDataType().getName());
 
                 }
             }
@@ -380,7 +365,7 @@ import retrofit2.Response;
     }
 
     private void registerFitnessDataListener(DataSource dataSource, DataType dataType) {
-        Log.e(TAG, "registerFitnessDataListener 내부(178line)");
+        Log.e(LOG_TAG, "registerFitnessDataListener 내부(178line)");
 
         //데이터의 변화를 추적하는 요청 생성
         SensorRequest request = new SensorRequest.Builder()
@@ -388,7 +373,7 @@ import retrofit2.Response;
                 .setDataType(dataType) // 사용할 데이터 유형
                 .setSamplingRate(3, TimeUnit.SECONDS) // 3초마다 샘플링
                 .build();
-        Log.e(TAG, "request 생성(185line)");
+        Log.e(LOG_TAG, "request 생성(185line)");
 
         // 주기적으로 관찰할 리스너 등록(클라이언트와 요청을 넣음)
         Fitness.SensorsApi.add(mApiClient, request, this)
@@ -397,8 +382,8 @@ import retrofit2.Response;
                     public void onResult(Status status) {
 
                         if (status.isSuccess()) {
-                            Log.e("GoogleFit", "SensorApi successfully added");
-                            Log.e(TAG, "주기적으로 관찰할 SensorAPI 생성(195line)");
+                            Log.e(LOG_TAG, "SensorApi successfully added");
+                            Log.e(LOG_TAG, "주기적으로 관찰할 SensorAPI 생성(195line)");
 
                         }
                     }
@@ -408,7 +393,7 @@ import retrofit2.Response;
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.e("GoogleFit", "onConnectionSuspended");
+        Log.e(LOG_TAG, "onConnectionSuspended");
     }
 
     // ※STEP3.피트니스 데이터에 액세스하도록 앱을 인증 -> onActivityResult()
@@ -424,7 +409,7 @@ import retrofit2.Response;
 
             }
         } else {
-            Log.e("GoogleFit", "authInProgress");
+            Log.e(LOG_TAG, "authInProgress");
         }
     }
 }
