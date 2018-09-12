@@ -48,20 +48,20 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    public class MainActivity extends AppCompatActivity implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    public ViewPager m_ViewPager;
-    public MainPagerAdapter m_PagerAdapter;
+        public ViewPager m_ViewPager;
+        public MainPagerAdapter m_PagerAdapter;
 
 
-    private static final int REQUEST_OAUTH = 1;
-    private static final String AUTH_PENDING = "auth_state_pending";
-    private boolean authInProgress = false;
-    private GoogleApiClient mApiClient;
-    private String TAG = "MainActivty";
-    private boolean TEST = false;
-    private Button button;
-    private Intent intent;
+        private static final int REQUEST_OAUTH = 1;
+        private static final String AUTH_PENDING = "auth_state_pending";
+        private boolean authInProgress = false;
+        private GoogleApiClient mApiClient;
+        private String TAG = "MainActivty";
+        private boolean TEST = false;
+        private Button button;
+        private Intent intent;
 
 
     private final int MY_PERMISSIONS_REQUEST_BODY_SENSORS =1;
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     @Override
     protected void onStop() {
         super.onStop();
-        stopService(intent);
+        //stopService(intent);
         Fitness.SensorsApi.remove(mApiClient, this)
                 .setResultCallback(new ResultCallback<Status>() {
                     @Override
@@ -314,7 +314,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                 }
             });
         }
-
     }
 
     @Override

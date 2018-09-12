@@ -20,7 +20,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class GetService  extends Service implements OnDataPointListener {
+public class GetService  extends Service {
 
     private boolean falg = false;
     DataPoint dataPoint;
@@ -47,7 +47,7 @@ public class GetService  extends Service implements OnDataPointListener {
             public void run() {
                 while(!falg){
                     try{
-                       /* Call<Response_BPM> response = RetrofitClient.getInstance().getService().GetBPM();
+                        Call<Response_BPM> response = RetrofitClient.getInstance().getService().GetBPM();
                         response.enqueue(new Callback<Response_BPM>() {
                             @Override
                             public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
@@ -57,7 +57,7 @@ public class GetService  extends Service implements OnDataPointListener {
                             public void onFailure(Call<Response_BPM> call, Throwable t) {
                                 Log.e("onFailure Called",""+t.toString());
                             }
-                        });*/
+                        });
 
                         Thread.sleep(5000);
                     }catch(Exception e){
@@ -70,7 +70,7 @@ public class GetService  extends Service implements OnDataPointListener {
             return super.onStartCommand(intent, flags, startId);
     }
 
-    @Override
+/*    @Override
     public void onDataPoint(DataPoint dataPoint) {
         for (final Field field : dataPoint.getDataType().getFields()) {
             final Value value = dataPoint.getValue(field);
@@ -83,5 +83,5 @@ public class GetService  extends Service implements OnDataPointListener {
             });
         }
 
-    }
+    }*/
 }

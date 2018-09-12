@@ -108,17 +108,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                authCode = account.getServerAuthCode();
+            authCode = account.getServerAuthCode();
 
-                // Show signed-un UI
-                updateUI(account);
-                request_Oauth();
+            // Show signed-un UI
+            updateUI(account);
+            request_Oauth();
 
-                // TODO(developer): send code to server and exchange for access/refresh/ID tokens
-            } catch (ApiException e) {
-                Log.w(TAG, "Sign-in failed", e);
-                updateUI(null);
-            }
+            // TODO(developer): send code to server and exchange for access/refresh/ID tokens
+        } catch (ApiException e) {
+            Log.w(TAG, "Sign-in failed", e);
+            updateUI(null);
+        }
             // [END get_auth_code]
         }
     }
