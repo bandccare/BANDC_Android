@@ -153,7 +153,7 @@ public class LoginActivity extends AppCompatActivity {
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                   dialog.cancel();
+                                    dialog.cancel();
                                 }
                             });
                     builder.show();

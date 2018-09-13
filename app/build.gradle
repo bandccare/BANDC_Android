@@ -54,6 +54,9 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
 
+    /* gif image */
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+
 
 }
 

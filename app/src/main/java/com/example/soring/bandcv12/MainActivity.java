@@ -10,14 +10,17 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.example.soring.bandcv12.Adapter.MainPagerAdapter;
 import com.example.soring.bandcv12.Model.Response_BPM;
 import com.example.soring.bandcv12.Model.Response_Check;
-import com.example.soring.bandcv12.Service.GetService;
 import com.example.soring.bandcv12.Util.RetrofitClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
@@ -50,15 +53,14 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private static final String AUTH_PENDING = "auth_state_pending";
     public ViewPager m_ViewPager;
     public MainPagerAdapter m_PagerAdapter;
+    //SharedPreferences
+    //private Button user_btn;
+    SharedPreferences user_info;
     private boolean authInProgress = false;
     private GoogleApiClient mApiClient;
     private String LOG_TAG = "BANDC_LOG";
     private Button button;
     private Intent intent;
-
-    //SharedPreferences
-    //private Button user_btn;
-    SharedPreferences user_info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         m_ViewPager = findViewById(R.id.viewpager);
         m_ViewPager.setAdapter(m_PagerAdapter);
         m_ViewPager.setOffscreenPageLimit(2);
-
+        Button bpmValueBtn = findViewById(R.id.bpmValueBtn);
         TabLayout m_Tab = findViewById(R.id.tabs);
         m_Tab.setupWithViewPager(m_ViewPager);
 
@@ -84,15 +86,19 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         response_checkCall.enqueue(new Callback<Response_Check>() {
             @Override
             public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
-                Log.e("onResponse Called2","succes");
+                Log.e("onResponse Called2", "succes");
             }
 
             @Override
             public void onFailure(Call<Response_Check> call, Throwable t) {
-                Log.e("onFailure called2",""+t.toString());
+                Log.e("onFailure called2", "" + t.toString());
             }
         });
 
+
+        ImageView heart = (ImageView) findViewById(R.id.heart);
+        GlideDrawableImageViewTarget gifImage = new GlideDrawableImageViewTarget(heart);
+        Glide.with(this).load(R.drawable.heart).into(gifImage);
 
 
         mApiClient = new GoogleApiClient.Builder(this)
@@ -115,6 +121,24 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
         /* 이 때 권한을 얻고나면 onActivityResult()가 콜백함수로 호출됨 */
 
+        bpmValueBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Call<Response_BPM> rep = RetrofitClient.getInstance().getService().GetBPM("0.0");
+                rep.enqueue(new Callback<Response_BPM>() {
+                    @Override
+                    public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
+                        Log.e("onresponse", "success");
+                    }
+
+                    @Override
+                    public void onFailure(Call<Response_BPM> call, Throwable t) {
+                        Log.e("onFailure", "" + t.toString());
+                    }
+                });
+            }
+        });
+
     }
 
 
@@ -124,8 +148,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     protected void onStart() {
         super.onStart();
         mApiClient.connect();
-        intent = new Intent(getApplicationContext(), GetService.class);
-        startService(intent);
+
     }
 
     @Override
@@ -133,6 +156,11 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         super.onStop();
         //stopService(intent);
         /*Fitness.SensorsApi.remove(mApiClient, this)
+=======
+        intent = new Intent(getApplicationContext(), FitnessService.class);
+        startService(intent);
+        Fitness.SensorsApi.remove(mApiClient, this)
+>>>>>>> Stashed changes
                 .setResultCallback(new ResultCallback<Status>() {
                     @Override
                     public void onResult(Status status) {
@@ -180,20 +208,24 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                             Log.e(LOG_TAG, "bpmValue:" + value);
                             TextView bpmValue = (TextView) findViewById(R.id.bpmValue);
                             bpmValue.setText(value.toString());
-                            if(value.toString().equals("0.0")){
+
+
+                            if (value.toString().equals("0.0")) {
                                 Call<Response_BPM> rep = RetrofitClient.getInstance().getService().GetBPM("0.0");
                                 rep.enqueue(new Callback<Response_BPM>() {
                                     @Override
                                     public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
-                                        Log.e("onresponse","success");
+                                        Log.e("onresponse", "success");
                                     }
 
                                     @Override
                                     public void onFailure(Call<Response_BPM> call, Throwable t) {
-                                        Log.e("onFailure",""+t.toString());
+                                        Log.e("onFailure", "" + t.toString());
                                     }
                                 });
                             }
+
+
                             Toast.makeText(getApplicationContext(), "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
                         }
                     });

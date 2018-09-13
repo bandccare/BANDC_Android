@@ -4,8 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.soring.bandcv12.Fragment.LocationFragment;
-import com.example.soring.bandcv12.Fragment.VideoPlayerFragment;
+import com.example.soring.bandcv12.Fragment.VideoLocationFragment;
+import com.example.soring.bandcv12.Fragment.BPMFragment;
 import com.example.soring.bandcv12.R;
 
 public class MainPagerAdapter extends FragmentPagerAdapter {
@@ -20,9 +20,9 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return VideoPlayerFragment.getInstance();
+                return BPMFragment.getInstance();
             case 1:
-                return LocationFragment.getInstance();
+                return VideoLocationFragment.getInstance();
             default:
                 return null;
         }
