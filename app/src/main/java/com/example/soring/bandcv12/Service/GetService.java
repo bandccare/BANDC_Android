@@ -50,7 +50,7 @@ public class GetService extends Service {
             public void run() {
                 while (!falg) {
                      /*try{
-                       Call<Response_BPM> response = RetrofitClient.getInstance().getService().GetBPM();
+                       zCall<Response_BPM> response = RetrofitClient.getInstance().getService().GetBPM();
                         response.enqueue(new Callback<Response_BPM>() {
                             @Override
                             public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {

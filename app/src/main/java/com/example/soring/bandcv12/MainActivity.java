@@ -83,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         for (int i = 0; i < m_ViewPager.getAdapter().getCount(); i++) {
             m_Tab.getTabAt(i).setIcon(m_PagerAdapter.getIcon(i));
         }
+
+
         Request_FCM_Token request_fcm_token = new Request_FCM_Token();
         request_fcm_token.setUser_id("testid@gmail.com");
         request_fcm_token.setUser_token(refreshedToken);
@@ -162,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     protected void onStop() {
         super.onStop();
         //stopService(intent);
-        Fitness.SensorsApi.remove(mApiClient, this)
+        /*Fitness.SensorsApi.remove(mApiClient, this)
                 .setResultCallback(new ResultCallback<Status>() {
                     @Override
                     public void onResult(Status status) {
@@ -170,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                             mApiClient.disconnect();
                         }
                     }
-                });
+                });*/
     }
 
     // ※STEP4. 권한 얻은 후 google api client 연결 시도 -> onConnected()
