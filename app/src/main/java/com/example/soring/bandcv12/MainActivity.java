@@ -3,23 +3,19 @@ package com.example.soring.bandcv12;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.soring.bandcv12.Adapter.MainPagerAdapter;
-import com.example.soring.bandcv12.Model.Request_FCM_Token;
+import com.example.soring.bandcv12.Model.Response_BPM;
 import com.example.soring.bandcv12.Model.Response_Check;
 import com.example.soring.bandcv12.Service.GetService;
 import com.example.soring.bandcv12.Util.RetrofitClient;
@@ -84,44 +80,16 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
             m_Tab.getTabAt(i).setIcon(m_PagerAdapter.getIcon(i));
         }
 
-
-        Request_FCM_Token request_fcm_token = new Request_FCM_Token();
-        request_fcm_token.setUser_id("testid@gmail.com");
-        request_fcm_token.setUser_token(refreshedToken);
-
-        //로그인할때 FCM 토큰이랑 사용자 아이디 서버에 뿌리는 부분(DB에 들어감)
-        Call<Response_Check> response = RetrofitClient.getInstance().getService().Send_FCM_Token(request_fcm_token);
-        response.enqueue(new Callback<Response_Check>() {
+        Call<Response_Check> response_checkCall = RetrofitClient.getInstance().getService().Send_User_Id("test");
+        response_checkCall.enqueue(new Callback<Response_Check>() {
             @Override
             public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
-                Log.e("onResponse called", "success");
+                Log.e("onResponse Called2","succes");
             }
 
             @Override
             public void onFailure(Call<Response_Check> call, Throwable t) {
-                Log.e("onFailure called", "" + t.toString());
-            }
-        });
-
-
-        // 여기서부터 밴드 코드 + 난수 심박수 요청보내는 코드
-        button = (Button)findViewById(R.id.button1);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //로그인한 아이디에 대한 토큰값을 DB에서 가져오는 코드
-                Call<Response_Check> response_checkCall = RetrofitClient.getInstance().getService().Send_User_Id("test");
-                response_checkCall.enqueue(new Callback<Response_Check>() {
-                    @Override
-                    public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
-                        Log.e("onResponse Called2","succes");
-                    }
-
-                    @Override
-                    public void onFailure(Call<Response_Check> call, Throwable t) {
-                        Log.e("onFailure called2",""+t.toString());
-                    }
-                });
+                Log.e("onFailure called2",""+t.toString());
             }
         });
 
@@ -212,6 +180,20 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                             Log.e(LOG_TAG, "bpmValue:" + value);
                             TextView bpmValue = (TextView) findViewById(R.id.bpmValue);
                             bpmValue.setText(value.toString());
+                            if(value.toString().equals("0.0")){
+                                Call<Response_BPM> rep = RetrofitClient.getInstance().getService().GetBPM("0.0");
+                                rep.enqueue(new Callback<Response_BPM>() {
+                                    @Override
+                                    public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
+                                        Log.e("onresponse","success");
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Response_BPM> call, Throwable t) {
+                                        Log.e("onFailure",""+t.toString());
+                                    }
+                                });
+                            }
                             Toast.makeText(getApplicationContext(), "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
                         }
                     });

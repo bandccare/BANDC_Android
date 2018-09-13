@@ -4,13 +4,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -19,21 +17,12 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.soring.bandcv12.Model.Request_Oauth;
-import com.example.soring.bandcv12.Model.Response_Oauth;
+import com.example.soring.bandcv12.Model.Request_FCM_Token;
+import com.example.soring.bandcv12.Model.Response_Check;
 import com.example.soring.bandcv12.Util.RetrofitClient;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.Scopes;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -100,6 +89,27 @@ public class LoginActivity extends AppCompatActivity {
                 // app-defined int constant. The callback method gets the
                 // result of the request.
             }
+
+            String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+            Log.e("FCM refreshedToken@@@", "" + refreshedToken);
+
+            Request_FCM_Token request_fcm_token = new Request_FCM_Token();
+            request_fcm_token.setUser_id("test");
+            request_fcm_token.setUser_token(refreshedToken);
+
+            //로그인할때 FCM 토큰이랑 사용자 아이디 서버에 뿌리는 부분(DB에 들어감)
+            Call<Response_Check> response = RetrofitClient.getInstance().getService().Send_FCM_Token(request_fcm_token);
+            response.enqueue(new Callback<Response_Check>() {
+                @Override
+                public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
+                    Log.e("onResponse called", "success");
+                }
+
+                @Override
+                public void onFailure(Call<Response_Check> call, Throwable t) {
+                    Log.e("onFailure called", "" + t.toString());
+                }
+            });
         }
         rg = findViewById(R.id.radio_group);
 
@@ -186,8 +196,6 @@ public class LoginActivity extends AppCompatActivity {
         Log.e("spinner", gender + " " + year + " " + month + " " + day);
         editor.commit();
     }
-
-
 
     private void removeAllPreferences() {
         user_info = getSharedPreferences("user_info", MODE_PRIVATE);
