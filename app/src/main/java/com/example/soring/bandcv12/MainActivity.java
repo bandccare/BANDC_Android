@@ -19,6 +19,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.example.soring.bandcv12.Adapter.MainPagerAdapter;
+import com.example.soring.bandcv12.Fragment.BPMFragment;
+import com.example.soring.bandcv12.Model.Request_alarm;
+import com.example.soring.bandcv12.Model.Request_exit;
 import com.example.soring.bandcv12.Model.Response_BPM;
 import com.example.soring.bandcv12.Model.Response_Check;
 import com.example.soring.bandcv12.Util.RetrofitClient;
@@ -61,6 +64,10 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private String LOG_TAG = "BANDC_LOG";
     private Button button;
     private Intent intent;
+    private Request_exit request_exit;
+    private Request_alarm request_alarm;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.e("FCM refreshedToken@@@", "" + refreshedToken);
+
+        request_alarm = new Request_alarm();
+        request_alarm.setAlarm("alarm");
 
         m_PagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
         m_ViewPager = findViewById(R.id.viewpager);
@@ -86,12 +96,12 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         response_checkCall.enqueue(new Callback<Response_Check>() {
             @Override
             public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
-                Log.e("onResponse Called2", "succes");
+                Log.e("onResponse Called2","succes");
             }
 
             @Override
             public void onFailure(Call<Response_Check> call, Throwable t) {
-                Log.e("onFailure called2", "" + t.toString());
+                Log.e("onFailure called2",""+t.toString());
             }
         });
 
@@ -136,8 +146,26 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                         Log.e("onFailure", "" + t.toString());
                     }
                 });
+
+
+                Call<Response_Check> response = RetrofitClient.getInstance().getService2().Send_alarm(request_alarm);
+                response.enqueue(new Callback<Response_Check>() {
+                    @Override
+                    public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Response_Check> call, Throwable t) {
+
+                    }
+                });
+
             }
         });
+
+        request_exit = new Request_exit();
+        request_exit.setExit("exit");
 
     }
 
@@ -156,11 +184,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         super.onStop();
         //stopService(intent);
         /*Fitness.SensorsApi.remove(mApiClient, this)
-=======
-        intent = new Intent(getApplicationContext(), FitnessService.class);
-        startService(intent);
-        Fitness.SensorsApi.remove(mApiClient, this)
->>>>>>> Stashed changes
                 .setResultCallback(new ResultCallback<Status>() {
                     @Override
                     public void onResult(Status status) {
@@ -169,6 +192,22 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                         }
                     }
                 });*/
+
+        Call<Response_Check> res = RetrofitClient.getInstance().getService2().Send_exit(request_exit);
+        res.enqueue(new Callback<Response_Check>() {
+            @Override
+            public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
+                Log.e("send exit onresponse","success");
+            }
+
+            @Override
+            public void onFailure(Call<Response_Check> call, Throwable t) {
+                Log.e("send exit fail",""+t.toString());
+            }
+        });
+
+
+
     }
 
     // ※STEP4. 권한 얻은 후 google api client 연결 시도 -> onConnected()
@@ -209,24 +248,25 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                             TextView bpmValue = (TextView) findViewById(R.id.bpmValue);
                             bpmValue.setText(value.toString());
 
+                            Bundle bundle = new Bundle();
+                            bundle.putDouble("data",(Double.valueOf(String.valueOf(value))));
+                            BPMFragment.getInstance().setArguments(bundle);
 
-                            if (value.toString().equals("0.0")) {
+                            if(value.toString().equals("0.0")){
                                 Call<Response_BPM> rep = RetrofitClient.getInstance().getService().GetBPM("0.0");
                                 rep.enqueue(new Callback<Response_BPM>() {
                                     @Override
                                     public void onResponse(Call<Response_BPM> call, Response<Response_BPM> response) {
-                                        Log.e("onresponse", "success");
+                                        Log.e("onresponse","success");
                                     }
 
                                     @Override
                                     public void onFailure(Call<Response_BPM> call, Throwable t) {
-                                        Log.e("onFailure", "" + t.toString());
+                                        Log.e("onFailure",""+t.toString());
                                     }
                                 });
                             }
 
-
-                            Toast.makeText(getApplicationContext(), "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {

@@ -90,26 +90,6 @@ public class LoginActivity extends AppCompatActivity {
                 // result of the request.
             }
 
-            String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-            Log.e("FCM refreshedToken@@@", "" + refreshedToken);
-
-            Request_FCM_Token request_fcm_token = new Request_FCM_Token();
-            request_fcm_token.setUser_id("test");
-            request_fcm_token.setUser_token(refreshedToken);
-
-            //로그인할때 FCM 토큰이랑 사용자 아이디 서버에 뿌리는 부분(DB에 들어감)
-            Call<Response_Check> response = RetrofitClient.getInstance().getService().Send_FCM_Token(request_fcm_token);
-            response.enqueue(new Callback<Response_Check>() {
-                @Override
-                public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
-                    Log.e("onResponse called", "success");
-                }
-
-                @Override
-                public void onFailure(Call<Response_Check> call, Throwable t) {
-                    Log.e("onFailure called", "" + t.toString());
-                }
-            });
         }
         rg = findViewById(R.id.radio_group);
 
@@ -148,6 +128,27 @@ public class LoginActivity extends AppCompatActivity {
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     startActivity(intent);
+
+                                    String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+                                    Log.e("FCM refreshedToken@@@", "" + refreshedToken);
+
+                                    Request_FCM_Token request_fcm_token = new Request_FCM_Token();
+                                    request_fcm_token.setUser_id("test");
+                                    request_fcm_token.setUser_token(refreshedToken);
+
+                                    //로그인할때 FCM 토큰이랑 사용자 아이디 서버에 뿌리는 부분(DB에 들어감)
+                                    Call<Response_Check> response = RetrofitClient.getInstance().getService().Send_FCM_Token(request_fcm_token);
+                                    response.enqueue(new Callback<Response_Check>() {
+                                        @Override
+                                        public void onResponse(Call<Response_Check> call, Response<Response_Check> response) {
+                                            Log.e("onResponse called", "success");
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<Response_Check> call, Throwable t) {
+                                            Log.e("onFailure called", "" + t.toString());
+                                        }
+                                    });
                                 }
                             }).setNegativeButton("아니오",
                             new DialogInterface.OnClickListener() {
