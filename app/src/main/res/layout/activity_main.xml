@@ -65,7 +65,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="23"
+                        android:text="00"
+                        android:id="@+id/main_age"
                         android:textColor="@android:color/black" />
 
                     <TextView
@@ -79,8 +80,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="3dp"
-                        android:text="여성"
-
+                        android:text="성별"
+                        android:id="@+id/main_gender"
                         android:textColor="@android:color/black" />
 
                     <TextView
@@ -94,7 +95,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="정상"
+                        android:text="확인"
+                        android:id="@+id/main_normal"
                         android:textColor="@android:color/black" />
 
                     <TextView

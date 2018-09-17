@@ -165,6 +165,19 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        getUserPreferences();
+        Log.e("age",year+"ff");
+        if(!year.equals("")){
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            Log.e("dd","a");
+        }
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -198,10 +211,9 @@ public class LoginActivity extends AppCompatActivity {
         editor.commit();
     }
 
-    private void removeAllPreferences() {
+    private void getUserPreferences() {
         user_info = getSharedPreferences("user_info", MODE_PRIVATE);
-        SharedPreferences.Editor editor = user_info.edit();
-        editor.clear();
-        editor.commit();
+        gender = user_info.getString("gender","");
+        year = user_info.getString("year","");
     }
 }

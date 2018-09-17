@@ -31,9 +31,9 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
     public String getPageTitle(int position){
         switch(position){
             case 0:
-                return "VIDEO";
+                return "PULSE";
             case 1:
-                return "LOCATION";
+                return "VIDEO&LOCATION";
             default:
                 return null;
         }

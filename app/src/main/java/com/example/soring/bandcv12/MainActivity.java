@@ -44,6 +44,7 @@ import com.google.android.gms.fitness.request.SensorRequest;
 import com.google.android.gms.fitness.result.DataSourcesResult;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
@@ -66,8 +67,9 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private Intent intent;
     private Request_exit request_exit;
     private Request_alarm request_alarm;
-
-
+    private TextView main_gender, main_age;
+    private String gender,year;
+    private int age;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,14 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         for (int i = 0; i < m_ViewPager.getAdapter().getCount(); i++) {
             m_Tab.getTabAt(i).setIcon(m_PagerAdapter.getIcon(i));
         }
+
+        main_age = (TextView)findViewById(R.id.main_age);
+        main_gender = (TextView)findViewById(R.id.main_gender);
+
+        getUserPreferences();
+        age = Calendar.getInstance().get(Calendar.YEAR)-Integer.parseInt(year);
+        main_gender.setText(gender);
+        main_age.setText(String.valueOf(age));
 
         Call<Response_Check> response_checkCall = RetrofitClient.getInstance().getService().Send_User_Id("test");
         response_checkCall.enqueue(new Callback<Response_Check>() {
@@ -176,7 +186,6 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     protected void onStart() {
         super.onStart();
         mApiClient.connect();
-
     }
 
     @Override
@@ -248,11 +257,15 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                             TextView bpmValue = (TextView) findViewById(R.id.bpmValue);
                             bpmValue.setText(value.toString());
 
+                            TextView main_normal = (TextView) findViewById(R.id.main_normal);
+                            main_normal.setText("정상");
+
                             Bundle bundle = new Bundle();
                             bundle.putDouble("data",(Double.valueOf(String.valueOf(value))));
-                            BPMFragment.getInstance().setArguments(bundle);
+                            //BPMFragment.getInstance().setArguments(bundle);
 
                             if(value.toString().equals("0.0")){
+                                main_normal.setText("위험");
                                 Call<Response_BPM> rep = RetrofitClient.getInstance().getService().GetBPM("0.0");
                                 rep.enqueue(new Callback<Response_BPM>() {
                                     @Override
@@ -270,6 +283,8 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                         }
                     });
                 } else {
+                    TextView main_normal = (TextView) findViewById(R.id.main_normal);
+                    main_normal.setText("위험");
                     Log.e(LOG_TAG, "이상한 수 들어옴:" + value);
                 }
             }
@@ -375,15 +390,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
     private void getUserPreferences() {
         user_info = getSharedPreferences("user_info", MODE_PRIVATE);
-
-        Log.e("spinner", user_info.getString("gender", "") + " "
-                + user_info.getString("year", "") + " "
-                + user_info.getString("month", "") + " "
-                + user_info.getString("day", ""));
-
-        Toast.makeText(this, user_info.getString("gender", "") + " "
-                + user_info.getString("year", "") + " "
-                + user_info.getString("month", "") + " "
-                + user_info.getString("day", ""), Toast.LENGTH_SHORT).show();
+        gender = user_info.getString("gender","");
+        year = user_info.getString("year","");
     }
 }
