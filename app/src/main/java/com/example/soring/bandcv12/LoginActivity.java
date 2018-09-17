@@ -11,7 +11,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -93,15 +92,15 @@ public class LoginActivity extends AppCompatActivity {
         }
         rg = findViewById(R.id.radio_group);
 
-        yearEdit = findViewById(R.id.edit_year);
-
-        monthSpinner = (Spinner) findViewById(R.id.spinner_month);
-        ArrayAdapter monthAdapter = ArrayAdapter.createFromResource(this, R.array.date_month, android.R.layout.simple_spinner_dropdown_item);
-        monthSpinner.setAdapter(monthAdapter);
-
-        daySpinner = (Spinner) findViewById(R.id.spinner_day);
-        ArrayAdapter dayAdapter = ArrayAdapter.createFromResource(this, R.array.date_day, android.R.layout.simple_spinner_dropdown_item);
-        daySpinner.setAdapter(dayAdapter);
+//        yearEdit = findViewById(R.id.edit_year);
+//
+//        monthSpinner = (Spinner) findViewById(R.id.spinner_month);
+//        ArrayAdapter monthAdapter = ArrayAdapter.createFromResource(this, R.array.date_month, android.R.layout.simple_spinner_dropdown_item);
+//        monthSpinner.setAdapter(monthAdapter);
+//
+//        daySpinner = (Spinner) findViewById(R.id.spinner_day);
+//        ArrayAdapter dayAdapter = ArrayAdapter.createFromResource(this, R.array.date_day, android.R.layout.simple_spinner_dropdown_item);
+//        daySpinner.setAdapter(dayAdapter);
 
         loginButton = findViewById(R.id.login_submit_btn);
         loginButton.setOnClickListener(new View.OnClickListener() {

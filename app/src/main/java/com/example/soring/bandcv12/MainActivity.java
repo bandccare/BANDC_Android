@@ -173,10 +173,8 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
 
             }
         });
-
         request_exit = new Request_exit();
         request_exit.setExit("exit");
-
     }
 
 
