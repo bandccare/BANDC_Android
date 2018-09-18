@@ -14,12 +14,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.example.soring.bandcv12.Adapter.MainPagerAdapter;
-import com.example.soring.bandcv12.Fragment.BPMFragment;
+import com.example.soring.bandcv12.Model.BusProvider;
+import com.example.soring.bandcv12.Model.DataEvent;
 import com.example.soring.bandcv12.Model.Request_alarm;
 import com.example.soring.bandcv12.Model.Request_exit;
 import com.example.soring.bandcv12.Model.Response_BPM;
@@ -44,7 +44,6 @@ import com.google.android.gms.fitness.request.SensorRequest;
 import com.google.android.gms.fitness.result.DataSourcesResult;
 import com.google.firebase.iid.FirebaseInstanceId;
 
-import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
@@ -70,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
     private TextView main_gender, main_age;
     private String gender,year;
     private int age;
+    public Bundle bundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
         main_gender = (TextView)findViewById(R.id.main_gender);
 
         getUserPreferences();
-        age = Calendar.getInstance().get(Calendar.YEAR)-Integer.parseInt(year);
+        //age = Calendar.getInstance().get(Calendar.YEAR)-Integer.parseInt(year);
         main_gender.setText(gender);
         main_age.setText(String.valueOf(age));
 
@@ -258,9 +258,11 @@ public class MainActivity extends AppCompatActivity implements OnDataPointListen
                             TextView main_normal = (TextView) findViewById(R.id.main_normal);
                             main_normal.setText("정상");
 
-                            Bundle bundle = new Bundle();
-                            bundle.putDouble("data",(Double.valueOf(String.valueOf(value))));
-                            //BPMFragment.getInstance().setArguments(bundle);
+//                            bundle = new Bundle();
+//                            bundle.putDouble("data",(Double.valueOf(String.valueOf(value))));
+//                            BPMFragment.getInstance().setArguments(bundle);
+
+                            BusProvider.getInstance().post(new DataEvent(Double.valueOf(String.valueOf(value))));
 
                             if(value.toString().equals("0.0")){
                                 main_normal.setText("위험");

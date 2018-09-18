@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.soring.bandcv12.Model.BusProvider;
+import com.example.soring.bandcv12.Model.DataEvent;
 import com.example.soring.bandcv12.R;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
@@ -23,6 +25,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.squareup.otto.Subscribe;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -39,8 +42,8 @@ public class BPMFragment extends Fragment {
     SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
     long mNow;
     public static Date mDate;
-    public static int startIndex;
     public boolean state = true;
+    public static double pulse;
 
     public int xindexstart = 0;
     Double xindex = 1.0 ;
@@ -48,6 +51,7 @@ public class BPMFragment extends Fragment {
     XAxis xAxis;
     List<Entry> entries;
     public int count = 0;
+    Bundle bundle;
 
 
     ArrayList<LineDataSet> dataSets;
@@ -59,6 +63,12 @@ public class BPMFragment extends Fragment {
         return instance;
     }
 
+    @Subscribe
+    public void getpulse(DataEvent dataEvent){
+        Log.e("bpm getpulse event","success"+dataEvent.getPulse());
+        pulse = dataEvent.getPulse();
+    }
+
 
     @Override
     public void onStart() {
@@ -66,6 +76,7 @@ public class BPMFragment extends Fragment {
         DataThread thread = new DataThread();
         thread.setDaemon(true);
         thread.start();
+        BusProvider.getInstance().register(this);
         Log.e("mapview2","mapView");
         Log.e("zxcvb","Pulse onStart()");
     }
@@ -85,6 +96,7 @@ public class BPMFragment extends Fragment {
     @Override
     public void onStop() {
         Log.e("zxcvb", "Pulse onStop()");
+        BusProvider.getInstance().unregister(this);
         state = false;
         super.onStop();
     }
@@ -113,9 +125,6 @@ public class BPMFragment extends Fragment {
         Date date = new Date(now);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy년 MM월 dd일");
         String getTime = sdf.format(date);
-//        today_tv = view.findViewById(R.id.today_tv);
-//        today_tv.setText(getTime);
-
 
         entries = new ArrayList<>();
         entries.add(new Entry(0,0));
@@ -159,7 +168,7 @@ public class BPMFragment extends Fragment {
         max.setTextColor(Color.BLACK);
         YAxis yLAxis = lineChart.getAxisLeft();
         yLAxis.setAxisMaximum(100);
-        yLAxis.setAxisMinimum(30);
+        yLAxis.setAxisMinimum(40);
         yLAxis.setTextColor(Color.BLACK);
         yLAxis.addLimitLine(min);
         yLAxis.addLimitLine(max);
@@ -186,39 +195,35 @@ public class BPMFragment extends Fragment {
         return view;
     }
 
-    public void chartUpdate(int x){
-        Log.e("getdata22","@@@@@@@@@@");
-        //entries.add(new Entry(xindexstart,70));
+    public void chartUpdate(){
         lineChart.notifyDataSetChanged();
         lineChart.invalidate();
         xAxis.setAxisMaximum((float) (xindexstart+xindex));
         xAxis.setAxisMinimum(xindexstart-3);
-        //dataview.setText(String.valueOf(dataString));
-        Bundle bundle = getArguments();
-        if(bundle != null){
-            double data = bundle.getDouble("data");
-            Log.e("받은 데이터@@@@",""+data);
-            entries.add(new Entry(xindexstart, (float) data));
-        }else{
-            Log.e("측정 데이터없음","없음");
-        }
 
-
-
+//        bundle = getArguments();
+//        if(bundle != null){
+//            double data = bundle.getDouble("data");
+//            Log.e("받은 데이터@@@@",""+data);
+//            entries.add(new Entry(xindexstart, (float) data));
+//        }else{
+//            Log.e("측정 데이터없음","없음");
+//        }
+        entries.add(new Entry(xindexstart, (float)pulse));
     }
-
 
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             if(msg.what == 0 ){
-                chartUpdate(startIndex);
+                Log.e("handler in","handler in");
+                chartUpdate();
                 xindex = xindex + 0.3;
-                startIndex+=2;
                 xindexstart++;
             }
         }
     };
+
     public class DataThread extends Thread {
         public DataThread() {
             state = true;
@@ -266,5 +271,6 @@ public class BPMFragment extends Fragment {
     public void stopThread(){
         state = false;
     }
+
 
 }
