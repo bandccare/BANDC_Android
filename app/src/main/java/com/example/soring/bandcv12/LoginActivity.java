@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -31,9 +32,7 @@ public class LoginActivity extends AppCompatActivity {
 
     RadioGroup rg;
     RadioButton rb;
-    EditText yearEdit;
-    Spinner monthSpinner;
-    Spinner daySpinner;
+    DatePicker datePicker;
     Button loginButton;
 
     int id;
@@ -92,15 +91,16 @@ public class LoginActivity extends AppCompatActivity {
         }
         rg = findViewById(R.id.radio_group);
 
-//        yearEdit = findViewById(R.id.edit_year);
-//
-//        monthSpinner = (Spinner) findViewById(R.id.spinner_month);
-//        ArrayAdapter monthAdapter = ArrayAdapter.createFromResource(this, R.array.date_month, android.R.layout.simple_spinner_dropdown_item);
-//        monthSpinner.setAdapter(monthAdapter);
-//
-//        daySpinner = (Spinner) findViewById(R.id.spinner_day);
-//        ArrayAdapter dayAdapter = ArrayAdapter.createFromResource(this, R.array.date_day, android.R.layout.simple_spinner_dropdown_item);
-//        daySpinner.setAdapter(dayAdapter);
+        datePicker = findViewById(R.id.date_picker);
+        datePicker.init(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(),
+                new DatePicker.OnDateChangedListener() {
+                    @Override
+                    public void onDateChanged(DatePicker view, int dateofYear, int monthOfYear, int dayOfMonth) {
+                        year = String.valueOf(dateofYear);
+                        month = String.valueOf(monthOfYear);
+                        day = String.valueOf(dayOfMonth);
+                    }
+                });
 
         loginButton = findViewById(R.id.login_submit_btn);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -110,9 +110,6 @@ public class LoginActivity extends AppCompatActivity {
                 rb = findViewById(id);
 
                 gender = rb.getText().toString();
-                year = yearEdit.getText().toString();
-                month = monthSpinner.getSelectedItem().toString();
-                day = daySpinner.getSelectedItem().toString();
                 if (year.equals("")) {
                     Toast.makeText(getApplicationContext(), "나이를 입력하세요", Toast.LENGTH_SHORT).show();
                 } else {
